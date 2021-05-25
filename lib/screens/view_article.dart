@@ -40,17 +40,22 @@ class _ViewArticleState extends State<ViewArticle> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(top: 5),
+                      padding: const EdgeInsets.only(top: 13),
                       child: Image.asset(
                         "assets/images/bran1.png",
-                        width: MediaQuery.of(context).size.width * 0.4,
+                        width: MediaQuery.of(context).size.width * 0.24,
                       ),
                     ),
                     SizedBox(
                       width: 10,
                     ),
-                    Image.asset("assets/images/bran2.png",
-                        width: MediaQuery.of(context).size.width * 0.4)
+                    Image.asset("assets/images/logo.png",
+                        width: MediaQuery.of(context).size.width * 0.4),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: Image.asset("assets/images/bran2.png",
+                          width: MediaQuery.of(context).size.width * 0.24),
+                    )
                   ],
                 ),
               ),
@@ -123,9 +128,17 @@ class _ViewArticleState extends State<ViewArticle> {
           cleanData();
           Navigator.of(context).pushReplacementNamed(Dashboard.routeName);
         },
-        label: Text(
-          'Assign Article  $counter',
-          style: TextStyle(color: Colors.white),
+        label: Row(
+          children: [
+            Text(
+              'Assign Article  ',
+              style: TextStyle(color: Colors.white, fontSize: 17),
+            ),
+            Text(
+              '$counter',
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
+          ],
         ),
         backgroundColor: Colors.pink,
       ),

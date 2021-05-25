@@ -17,6 +17,24 @@ class Dashboard extends StatelessWidget {
     return Scaffold(
         key: _scaffoldKey,
         drawer: Drawers(),
+        appBar: AppBar(
+          actions: [
+            IconButton(
+              icon: Icon(
+                Icons.sync_sharp,
+                size: 30.0,
+              ),
+              onPressed: () {},
+            ),
+          ],
+          centerTitle: true,
+          title: Text("Article Alert System",
+              style: TextStyle(
+                  fontSize: 20,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold)),
+        ),
+        //   appBar: AppBar(  backgroundColor: Colors.white,),
         body: SingleChildScrollView(
           child: SafeArea(
               child: Column(
@@ -24,17 +42,36 @@ class Dashboard extends StatelessWidget {
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.all(12.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    IconButton(
-                      icon: Icon(
-                        Icons.menu,
-                        size: 30.0,
-                      ),
-                      onPressed: () => _scaffoldKey.currentState.openDrawer(),
-                    ),
-                  ],
+                // child: Row(
+                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //   children: <Widget>[
+                //     IconButton(
+                //       icon: Icon(
+                //         Icons.menu,
+                //         size: 30.0,
+                //       ),
+                //       onPressed: () => _scaffoldKey.currentState.openDrawer(),
+                //     ),
+                //     Text("Article Alert System",
+                //         style: TextStyle(fontSize: 20, color: Colors.black , fontWeight: )),
+                //     IconButton(
+                //       icon: Icon(
+                //         Icons.sync_sharp,
+                //         size: 30.0,
+                //       ),
+                //       onPressed: () {},
+                //     ),
+                //   ],
+                // ),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 16.0),
+                child: Text(
+                  "Welcome, Khaled & 3595",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               ),
               Padding(
@@ -43,17 +80,22 @@ class Dashboard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(top: 5),
+                      padding: const EdgeInsets.only(top: 13),
                       child: Image.asset(
                         "assets/images/bran1.png",
-                        width: MediaQuery.of(context).size.width * 0.4,
+                        width: MediaQuery.of(context).size.width * 0.24,
                       ),
                     ),
                     SizedBox(
                       width: 10,
                     ),
-                    Image.asset("assets/images/bran2.png",
-                        width: MediaQuery.of(context).size.width * 0.4)
+                    Image.asset("assets/images/logo.png",
+                        width: MediaQuery.of(context).size.width * 0.4),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: Image.asset("assets/images/bran2.png",
+                          width: MediaQuery.of(context).size.width * 0.24),
+                    )
                   ],
                 ),
               ),
@@ -136,7 +178,7 @@ class Dashboard extends StatelessWidget {
                       onTap: () {
                         Navigator.of(context).pushNamed(ViewDoctor.routeName);
                       },
-                      child: card("View Doctor",
+                      child: card("Manage Doctor",
                           "assets/svg/list_of_doctor.svg", context),
                     ),
                     // GestureDetector(
@@ -148,27 +190,6 @@ class Dashboard extends StatelessWidget {
                     // ),
                   ],
                 )),
-              ),
-              Container(
-                height: MediaQuery.of(context).size.height * 0.45,
-                alignment: Alignment.bottomCenter,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 5),
-                      child: Image.asset(
-                        "assets/images/bran1.png",
-                        width: MediaQuery.of(context).size.width * 0.4,
-                      ),
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Image.asset("assets/images/bran2.png",
-                        width: MediaQuery.of(context).size.width * 0.4)
-                  ],
-                ),
               ),
             ],
           )),
