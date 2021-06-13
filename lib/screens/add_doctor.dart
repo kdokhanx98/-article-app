@@ -300,7 +300,7 @@ class _AddDoctorScreenState extends State<AddDoctorScreen> {
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 30),
                 child: Container(
                   decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor,
+                      color: Theme.of(context).accentColor,
                       borderRadius: BorderRadius.circular(5)),
                   width: MediaQuery.of(context).size.width * 0.9,
                   height: 50.0,
@@ -309,7 +309,7 @@ class _AddDoctorScreenState extends State<AddDoctorScreen> {
                       Navigator.of(context).pushNamed(Dashboard.routeName);
                     },
                     textColor: Colors.white,
-                    color: Theme.of(context).primaryColor,
+                    color: Theme.of(context).accentColor,
                     child: Text(
                       'Submit',
                       style: TextStyle(

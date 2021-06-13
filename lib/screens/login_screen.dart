@@ -35,12 +35,73 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FlutterLogin(
+    return Scaffold(
+      body:
+      Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(image: AssetImage('assets/images/login_bg.jpg'), fit: BoxFit.fill,),
+
+        ),
+        child: FlutterLogin(
+          theme: LoginTheme(
+            buttonTheme: LoginButtonTheme(backgroundColor: Colors.pink),
+            primaryColor: Colors.transparent
+          ),
+          //   title: Constants.appName,
+          logo: "assets/images/logo.jpg",
+
+          // userValidator: (value) {
+          //   if (!value.contains('@') || !value.endsWith('.com')) {
+          //     return "Email must contain '@' and end with '.com'";
+          //   }
+          //   return null;
+          // },
+          passwordValidator: (value) {
+            if (value.isEmpty) {
+              return 'Password is empty';
+            }
+            return null;
+          },
+          hideSignUpButton: true,
+          hideForgotPasswordButton: true,
+
+          onLogin: (loginData) {
+            Navigator.of(context).pushNamed(Dashboard.routeName);
+
+            print('Login info');
+            print('Name: ${loginData.name}');
+            print('Password: ${loginData.password}');
+            return _loginUser(loginData);
+          },
+          // onSignup: (loginData) {
+          //   print('Signup info');
+          //   print('Name: ${loginData.name}');
+          //   print('Password: ${loginData.password}');
+          //   return _loginUser(loginData);
+          // },
+          onSignup: (_) => Future(null),
+
+          onSubmitAnimationCompleted: () {
+            Navigator.of(context).pushReplacement(FadePageRoute(
+              builder: (context) => Dashboard(),
+            ));
+          },
+          onRecoverPassword: (name) {
+            print('Recover password info');
+            print('Name: $name');
+            return _recoverPassword(name);
+            // Show new password dialog
+          },
+          // showDebugButtons: true,
+        ),
+      ),
+    );
+
+
+      FlutterLogin(
       //   title: Constants.appName,
       logo: "assets/images/logo.jpg",
-      theme: LoginTheme(
-        primaryColor: HexColor("#fe0063"),
-      ),
+
       // userValidator: (value) {
       //   if (!value.contains('@') || !value.endsWith('.com')) {
       //     return "Email must contain '@' and end with '.com'";

@@ -69,10 +69,14 @@ class DoctorItem extends StatelessWidget {
                         child: Row(
                           children: [
                             ElevatedButton(
+
                                 onPressed: () {
                                   Navigator.of(context)
                                       .pushNamed(ViewArticle.routeName);
                                 },
+                                style: ElevatedButton.styleFrom(
+                                  primary: Theme.of(context).accentColor,
+                                ),
                                 child: Text("Assign Article")),
                             SizedBox(
                               width: 20,
@@ -85,7 +89,7 @@ class DoctorItem extends StatelessWidget {
                               },
                               child: Text("Edit"),
                               style: ElevatedButton.styleFrom(
-                                primary: Colors.lightBlue,
+                                primary: Theme.of(context).accentColor,
                               ),
                             ),
                           ],

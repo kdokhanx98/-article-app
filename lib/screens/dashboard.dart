@@ -3,6 +3,7 @@ import 'package:articleaapp/screens/add_doctor.dart';
 import 'package:articleaapp/screens/view_article.dart';
 import 'package:articleaapp/screens/view_article_screen.dart';
 import 'package:articleaapp/screens/view_doctor.dart';
+import 'package:articleaapp/styling.dart';
 import 'package:articleaapp/widgets/drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -198,9 +199,11 @@ class Dashboard extends StatelessWidget {
 
   Widget card(String title, String img, BuildContext context) {
     return SizedBox(
+
       width: MediaQuery.of(context).size.width * 1,
       height: 100.0,
       child: Card(
+        color: HexColor("#B22382"),
         elevation: 2.0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
         child: Center(
@@ -211,6 +214,7 @@ class Dashboard extends StatelessWidget {
             children: <Widget>[
               SvgPicture.asset(
                 img,
+                color: Colors.white,
                 width: 55,
                 height: 55,
               ),
@@ -219,12 +223,12 @@ class Dashboard extends StatelessWidget {
               ),
               Text(
                 title,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0, color: Colors.white),
               ),
               SizedBox(
                 width: 30,
               ),
-              Icon(Icons.arrow_forward_ios)
+              Icon(Icons.arrow_forward_ios, color: Colors.white,)
             ],
           ),
         )),

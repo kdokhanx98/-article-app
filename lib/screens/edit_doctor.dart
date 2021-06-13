@@ -307,7 +307,7 @@ class _EditDoctorScreenState extends State<EditDoctorScreen> {
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 30),
                 child: Container(
                   decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor,
+                      color: Theme.of(context).accentColor,
                       borderRadius: BorderRadius.circular(5)),
                   width: MediaQuery.of(context).size.width * 1,
                   height: 50.0,
@@ -316,7 +316,7 @@ class _EditDoctorScreenState extends State<EditDoctorScreen> {
                       Navigator.of(context).pop();
                     },
                     textColor: Colors.white,
-                    color: Theme.of(context).primaryColor,
+                    color: Theme.of(context).accentColor,
                     child: Text(
                       'Update',
                       style: TextStyle(

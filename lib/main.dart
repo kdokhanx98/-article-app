@@ -1,3 +1,4 @@
+import 'package:articleaapp/styling.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -26,8 +27,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         // brightness: Brightness.dark,
-        primarySwatch: Colors.pink,
-        accentColor: Colors.orange,
+
+
+        accentColor: HexColor("B22382"),
         textSelectionTheme: TextSelectionThemeData(cursorColor: Colors.orange),
         // fontFamily: 'SourceSansPro',
         textTheme: TextTheme(
