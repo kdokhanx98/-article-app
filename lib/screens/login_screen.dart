@@ -1,19 +1,25 @@
+
+import 'package:articleaapp/models/user.dart';
+import 'package:articleaapp/provider/auth_provider.dart';
 import 'package:flutter/scheduler.dart' show timeDilation;
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
-import '../constants.dart';
+import 'package:provider/provider.dart';
 import '../custom_route.dart';
-import '../styling.dart';
 import '../users.dart';
 import 'dashboard.dart';
 
 class LoginScreen extends StatelessWidget {
   static const routeName = '/auth';
 
+
   Duration get loginTime => Duration(milliseconds: timeDilation.ceil() * 2250);
 
   Future<String> _loginUser(LoginData data) {
     return Future.delayed(loginTime).then((_) {
+      if(data == null){
+        return 'wrong credentials';
+      }
       if (!mockUsers.containsKey(data.name)) {
         return 'User not exists';
       }
@@ -35,6 +41,7 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       body:
       Container(
@@ -43,12 +50,21 @@ class LoginScreen extends StatelessWidget {
 
         ),
         child: FlutterLogin(
+          emailValidator: (value)  {
+            if(value.isEmpty){
+              return 'Employee Code is empty';
+            }
+            return null;
+          },
+          messages: LoginMessages(
+            usernameHint: "Employee Code"
+          ),
           theme: LoginTheme(
             buttonTheme: LoginButtonTheme(backgroundColor: Colors.pink),
             primaryColor: Colors.transparent
           ),
           //   title: Constants.appName,
-          logo: "assets/images/logo.jpg",
+          logo: "assets/images/logo.png",
 
           // userValidator: (value) {
           //   if (!value.contains('@') || !value.endsWith('.com')) {
@@ -65,13 +81,24 @@ class LoginScreen extends StatelessWidget {
           hideSignUpButton: true,
           hideForgotPasswordButton: true,
 
-          onLogin: (loginData) {
-            Navigator.of(context).pushNamed(Dashboard.routeName);
+          onLogin: (loginData) async {
+            
+            User user = await Provider.of<AuthProvider>(context, listen: false).login(loginData.name, loginData.password);
+
+            if(user != null && user.tmId.length > 0){
+              print("inside if");
+              Navigator.of(context).pushNamed(Dashboard.routeName);
+              return _loginUser(loginData);
+            }else{
+              print("inside else");
+              return _loginUser(null);
+            }
 
             print('Login info');
             print('Name: ${loginData.name}');
             print('Password: ${loginData.password}');
             return _loginUser(loginData);
+
           },
           // onSignup: (loginData) {
           //   print('Signup info');
@@ -98,53 +125,6 @@ class LoginScreen extends StatelessWidget {
     );
 
 
-      FlutterLogin(
-      //   title: Constants.appName,
-      logo: "assets/images/logo.jpg",
 
-      // userValidator: (value) {
-      //   if (!value.contains('@') || !value.endsWith('.com')) {
-      //     return "Email must contain '@' and end with '.com'";
-      //   }
-      //   return null;
-      // },
-      passwordValidator: (value) {
-        if (value.isEmpty) {
-          return 'Password is empty';
-        }
-        return null;
-      },
-      hideSignUpButton: true,
-      hideForgotPasswordButton: true,
-
-      onLogin: (loginData) {
-        Navigator.of(context).pushNamed(Dashboard.routeName);
-
-        print('Login info');
-        print('Name: ${loginData.name}');
-        print('Password: ${loginData.password}');
-        return _loginUser(loginData);
-      },
-      // onSignup: (loginData) {
-      //   print('Signup info');
-      //   print('Name: ${loginData.name}');
-      //   print('Password: ${loginData.password}');
-      //   return _loginUser(loginData);
-      // },
-      onSignup: (_) => Future(null),
-
-      onSubmitAnimationCompleted: () {
-        Navigator.of(context).pushReplacement(FadePageRoute(
-          builder: (context) => Dashboard(),
-        ));
-      },
-      onRecoverPassword: (name) {
-        print('Recover password info');
-        print('Name: $name');
-        return _recoverPassword(name);
-        // Show new password dialog
-      },
-      // showDebugButtons: true,
-    );
   }
 }

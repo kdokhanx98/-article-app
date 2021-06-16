@@ -1,3 +1,4 @@
+import 'package:articleaapp/provider/auth_provider.dart';
 import 'package:articleaapp/styling.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
@@ -22,9 +23,12 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MultiProvider(providers: [ListenableProvider<AuthProvider>(create: (_) => AuthProvider(),)], child:
+
+      MaterialApp(
       theme: ThemeData(
         // brightness: Brightness.dark,
 
@@ -74,6 +78,7 @@ class MyApp extends StatelessWidget {
         ViewDoctor.routeName: (context) => ViewDoctor(),
         EditDoctorScreen.routeName: (context) => EditDoctorScreen(),
       },
+    )
     );
   }
 }

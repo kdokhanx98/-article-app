@@ -49,10 +49,7 @@ class Drawers extends StatelessWidget {
                   Navigator.of(context).pushNamed(AddDoctorScreen.routeName);
                 },
                 child: ListTile(
-                  leading: SvgPicture.asset(
-                    "assets/svg/doctor.svg",
-                    width: 25,
-                  ),
+                  leading: Image.asset("assets/images/add_doctor.png", color: Colors.black, width: 25,),
                   title: Text('Add Doctors'),
                   onTap: () {
                     Navigator.of(context).pushNamed(AddDoctorScreen.routeName);
