@@ -1,4 +1,5 @@
 import 'package:articleaapp/provider/auth_provider.dart';
+import 'package:articleaapp/provider/doctor_provider.dart';
 import 'package:articleaapp/styling.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
@@ -26,12 +27,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(providers: [ListenableProvider<AuthProvider>(create: (_) => AuthProvider(),)], child:
-
-      MaterialApp(
+    return MultiProvider(providers: [ListenableProvider<AuthProvider>(create: (_) => AuthProvider()), ListenableProvider<DoctorProvider>(create: (_) => DoctorProvider()), ],
+        child: MaterialApp(
       theme: ThemeData(
         // brightness: Brightness.dark,
-
 
         accentColor: HexColor("B22382"),
         textSelectionTheme: TextSelectionThemeData(cursorColor: Colors.orange),

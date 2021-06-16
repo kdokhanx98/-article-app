@@ -1,7 +1,10 @@
 import 'package:articleaapp/models/articles.dart';
 import 'package:articleaapp/models/doctor.dart';
+import 'package:articleaapp/provider/auth_provider.dart';
+import 'package:articleaapp/provider/doctor_provider.dart';
 import 'package:articleaapp/widgets/doctor_item.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ViewDoctor extends StatefulWidget {
   static const routeName = '/ViewDoctor';
@@ -10,15 +13,29 @@ class ViewDoctor extends StatefulWidget {
 }
 
 class _ViewDoctorState extends State<ViewDoctor> {
-  bool isClieckSearch = false;
+  bool isSearchClicked = false;
+  bool isInitialize = true;
+  List<Doctor> doctorsList = [];
+
+  @override
+  void didChangeDependencies() {
+    var provider = Provider.of<DoctorProvider>(context);
+    if(isInitialize) {
+      final userId = Provider.of<AuthProvider>(context).userId;
+      Provider.of<DoctorProvider>(context, listen: false).getDoctors(userId).then((value) => doctorsList = provider.getDoctorList);
+        isInitialize = false;
+    }
+    super.didChangeDependencies();
+    }
 
   @override
   Widget build(BuildContext context) {
+
     print(myArticls.length);
 
     return Scaffold(
       appBar: AppBar(
-        title: isClieckSearch == false
+        title: isSearchClicked == false
             ? Text("Doctors List")
             : Container(
                 decoration: BoxDecoration(
@@ -52,7 +69,7 @@ class _ViewDoctorState extends State<ViewDoctor> {
                         ),
                         onPressed: () {
                           setState(() {
-                            isClieckSearch = !isClieckSearch;
+                            isSearchClicked = !isSearchClicked;
                           });
                         })
                   ],
@@ -60,7 +77,7 @@ class _ViewDoctorState extends State<ViewDoctor> {
               ),
         centerTitle: true,
         actions: [
-          isClieckSearch == false
+          isSearchClicked == false
               ? Padding(
                   padding: const EdgeInsets.only(right: 15.5),
                   child: IconButton(
@@ -70,7 +87,7 @@ class _ViewDoctorState extends State<ViewDoctor> {
                     ),
                     onPressed: () {
                       setState(() {
-                        isClieckSearch = !isClieckSearch;
+                        isSearchClicked = !isSearchClicked;
                       });
                     },
                   ),
@@ -112,21 +129,21 @@ class _ViewDoctorState extends State<ViewDoctor> {
                   ],
                 ),
               ),
-              Padding(
+              doctorsList.length > 0 ? Padding(
                 padding: const EdgeInsets.only(bottom: 80),
                 child: ListView.builder(
                   physics: BouncingScrollPhysics(),
                   shrinkWrap: true,
                   itemBuilder: (context, index) => DoctorItem(
                     number: (index + 1).toString(),
-                    drName: doctors[index].drName,
-                    drEmail: doctors[index].drEmail,
-                    drNumber: doctors[index].drNumber,
+                    drName: doctorsList[index].docName,
+                    drEmail: doctorsList[index].docEmail,
+                    drNumber: doctorsList[index].docMobile,
                     indxe: index,
                   ),
-                  itemCount: doctors.length,
+                  itemCount: doctorsList.length,
                 ),
-              ),
+              ) : Center(child: CircularProgressIndicator()) ,
             ],
           ),
         ),

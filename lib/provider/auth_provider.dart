@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 class AuthProvider with ChangeNotifier {
 
   User user;
+  String userId;
 
   Future<User> login(String username, String password) async {
     final url = Uri.parse("https://humgicwale.com/articlealert/API_TM/tmlogin");
@@ -17,7 +18,7 @@ class AuthProvider with ChangeNotifier {
       final response = await http.post(url, body: loginDetail);
       final responseData = json.decode(response.body);
 
-      String userId = responseData["TMid"];
+       userId = responseData["TMid"];
       if(userId != null && userId.length > 0){
          user = new User(responseData["TMid"], responseData["TMname"],
             responseData["TMemployeecode"], responseData["TMpwd"],

@@ -1,10 +1,19 @@
+import 'dart:math';
+
+import 'package:articleaapp/provider/auth_provider.dart';
+import 'package:articleaapp/provider/doctor_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:provider/provider.dart';
 
 import 'dashboard.dart';
 
+
 class AddDoctorScreen extends StatefulWidget {
+
   static const routeName = '/AddDoctorScreen';
+
 
   @override
   _AddDoctorScreenState createState() => _AddDoctorScreenState();
@@ -15,26 +24,32 @@ class _AddDoctorScreenState extends State<AddDoctorScreen> {
   final nameController = TextEditingController();
   final mobileController = TextEditingController();
   final emailController = TextEditingController();
+  final cityController = TextEditingController();
 
-  final tmData = <String>[
-    'TM1',
-    'TM2',
-    'TM3',
-    'TM4',
-    'TM5',
-    'TM6',
-  ];
-  String tm = null;
+  
+  saveForm(BuildContext context){
+    final isValid = formKey.currentState.validate();
 
-  final stringData = <String>[
-    'Bengaluru',
-    'Delhi',
-    'Hyderabad',
-    'Mumbai',
-    'Pune',
-    'Thane',
-  ];
-  String city = null;
+    if(!isValid){
+      return;
+    }else{
+      final userId = Provider.of<AuthProvider>(context, listen: false).userId;
+      formKey.currentState.save();
+      Provider.of<DoctorProvider>(context, listen: false).addDoctor(docName: nameController.text, docCity: cityController.text, docMobile: mobileController.text, docEmail: emailController.text, tmId: userId).then((value)  {
+      Fluttertoast.showToast(
+      msg: "Added Successfully",
+      toastLength: Toast.LENGTH_LONG,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.green,
+      textColor: Colors.white,
+      fontSize: 16.0
+      ).whenComplete(() => Navigator.of(context).pop());
+
+      });
+    }
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -82,61 +97,6 @@ class _AddDoctorScreenState extends State<AddDoctorScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        //   GestureDetector(
-                        //     onTap: () {},
-                        //     child: GestureDetector(
-                        //       onTap: () {},
-                        //       child: Container(
-                        //         decoration: BoxDecoration(
-                        //           border: Border.all(color: Colors.grey),
-                        //           borderRadius: BorderRadius.circular(5),
-                        //         ),
-                        //         child: Padding(
-                        //           padding: EdgeInsets.symmetric(
-                        //               horizontal: 20, vertical: 0),
-                        //           child: DropdownButtonHideUnderline(
-                        //             child: DropdownButton<String>(
-                        //               value: tm,
-                        //               //elevation: 5,
-                        //               icon: Icon(
-                        //                 Icons.arrow_drop_down,
-                        //                 color: Colors.grey,
-                        //               ),
-                        //               style: TextStyle(
-                        //                   color: Colors.black, fontSize: 17),
-                        //               isExpanded: true,
-                        //               items: <String>[
-                        //                 'TM1',
-                        //                 'TM2',
-                        //                 'TM3',
-                        //                 'TM4',
-                        //                 'TM5',
-                        //                 'TM6',
-                        //               ].map<DropdownMenuItem<String>>(
-                        //                   (String value) {
-                        //                 return DropdownMenuItem<String>(
-                        //                   value: value,
-                        //                   child: Text(value),
-                        //                 );
-                        //               }).toList(),
-                        //               hint: Text(
-                        //                 "TM -  No Selected",
-                        //                 style: TextStyle(
-                        //                   fontSize: 18,
-                        //                   color: Colors.grey,
-                        //                 ),
-                        //               ),
-                        //               onChanged: (String value) {
-                        //                 setState(() {
-                        //                   tm = value;
-                        //                 });
-                        //               },
-                        //             ),
-                        //           ),
-                        //         ),
-                        //       ),
-                        //     ),
-                        //   ),
                         SizedBox(
                           height: 10,
                         ),
@@ -159,8 +119,8 @@ class _AddDoctorScreenState extends State<AddDoctorScreen> {
                               ),
                               style: TextStyle(fontSize: 15),
                               validator: (value) {
-                                if (value.isEmpty || value.length < 5) {
-                                  return 'الرجاء إدخال اسم صحيح';
+                                if (value.isEmpty) {
+                                  return 'Enter doctor\'s name';
                                 }
 
                                 return null;
@@ -190,8 +150,10 @@ class _AddDoctorScreenState extends State<AddDoctorScreen> {
                               ),
                               style: TextStyle(fontSize: 15),
                               validator: (value) {
-                                if (value.isEmpty || value.length < 5) {
-                                  return 'الرجاء إدخال اسم صحيح';
+                                if (value.isEmpty) {
+                                  return 'Enter doctor\'s email';
+                                }else if(!isValidEmail(value)){
+                                  return 'Please enter valid email';
                                 }
 
                                 return null;
@@ -202,58 +164,32 @@ class _AddDoctorScreenState extends State<AddDoctorScreen> {
                         SizedBox(
                           height: 10,
                         ),
-                        GestureDetector(
-                          onTap: () {},
-                          child: GestureDetector(
-                            onTap: () {},
-                            child: Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey),
-                                borderRadius: BorderRadius.circular(5),
+                        Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 0),
+                            child: TextFormField(
+                              keyboardType: TextInputType.phone,
+                              controller: cityController,
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                labelText: "City",
+                                labelStyle: TextStyle(fontSize: 18),
+                                hintStyle:
+                                TextStyle(color: Colors.grey, fontSize: 10),
                               ),
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 0),
-                                child: DropdownButtonHideUnderline(
-                                  child: DropdownButton<String>(
-                                    value: city,
-                                    //elevation: 5,
-                                    icon: Icon(
-                                      Icons.arrow_drop_down,
-                                      color: Colors.grey,
-                                    ),
-                                    style: TextStyle(
-                                        color: Colors.black, fontSize: 17),
-                                    isExpanded: true,
-                                    items: <String>[
-                                      'Bengaluru',
-                                      'Delhi',
-                                      'Hyderabad',
-                                      'Mumbai',
-                                      'Pune',
-                                      'Thane',
-                                    ].map<DropdownMenuItem<String>>(
-                                        (String value) {
-                                      return DropdownMenuItem<String>(
-                                        value: value,
-                                        child: Text(value),
-                                      );
-                                    }).toList(),
-                                    hint: Text(
-                                      "City -  No Selected",
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                    onChanged: (String value) {
-                                      setState(() {
-                                        city = value;
-                                      });
-                                    },
-                                  ),
-                                ),
-                              ),
+                              style: TextStyle(fontSize: 15),
+                              validator: (value) {
+                                if (value.isEmpty) {
+                                  return 'Enter doctor\'s city';
+                                }
+
+                                return null;
+                              },
                             ),
                           ),
                         ),
@@ -280,8 +216,8 @@ class _AddDoctorScreenState extends State<AddDoctorScreen> {
                               ),
                               style: TextStyle(fontSize: 15),
                               validator: (value) {
-                                if (value.isEmpty || value.length < 5) {
-                                  return 'الرجاء إدخال اسم صحيح';
+                                if (value.isEmpty) {
+                                  return 'Enter Doctor\'s mobile';
                                 }
 
                                 return null;
@@ -306,7 +242,8 @@ class _AddDoctorScreenState extends State<AddDoctorScreen> {
                   height: 50.0,
                   child: RaisedButton(
                     onPressed: () {
-                      Navigator.of(context).pushNamed(Dashboard.routeName);
+                     saveForm(context);
+                    
                     },
                     textColor: Colors.white,
                     color: Theme.of(context).accentColor,
@@ -327,5 +264,10 @@ class _AddDoctorScreenState extends State<AddDoctorScreen> {
         ),
       ),
     );
+  }
+  bool isValidEmail(String email) {
+    return RegExp(
+        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
+        .hasMatch(email);
   }
 }

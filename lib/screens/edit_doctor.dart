@@ -40,9 +40,9 @@ class _EditDoctorScreenState extends State<EditDoctorScreen> {
   @override
   Widget build(BuildContext context) {
     final args = ModalRoute.of(context).settings.arguments as int;
-    nameController.text = doctors[args].drName;
-    emailController.text = doctors[args].drEmail;
-    mobileController.text = doctors[args].drNumber;
+    nameController.text = doctors[args].docName;
+    emailController.text = doctors[args].docEmail;
+    mobileController.text = doctors[args].docMobile;
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,

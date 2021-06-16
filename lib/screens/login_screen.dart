@@ -86,11 +86,9 @@ class LoginScreen extends StatelessWidget {
             User user = await Provider.of<AuthProvider>(context, listen: false).login(loginData.name, loginData.password);
 
             if(user != null && user.tmId.length > 0){
-              print("inside if");
-              Navigator.of(context).pushNamed(Dashboard.routeName);
+              Navigator.of(context).pushReplacementNamed(Dashboard.routeName);
               return _loginUser(loginData);
             }else{
-              print("inside else");
               return _loginUser(null);
             }
 
