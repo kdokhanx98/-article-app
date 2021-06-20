@@ -1,7 +1,10 @@
 import 'package:articleaapp/models/articles.dart';
+import 'package:articleaapp/provider/articles_provider.dart';
+import 'package:articleaapp/provider/auth_provider.dart';
 import 'package:articleaapp/screens/dashboard.dart';
 import 'package:articleaapp/screens/view_doctor.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ViewArticle extends StatefulWidget {
   static const routeName = '/ViewArticle';
@@ -12,16 +15,31 @@ class ViewArticle extends StatefulWidget {
 
 class _ViewArticleState extends State<ViewArticle> {
   int counter = 0;
+  bool isInitialized = true;
+  List<Article> articles = [];
 
   @override
   void dispose() {
-    cleanData();
     super.dispose();
   }
 
   @override
+  void didChangeDependencies() {
+
+    if(isInitialized){
+      isInitialized = false;
+      var authProvider = Provider.of<AuthProvider>(context, listen: false);
+      var articleProvider = Provider.of<ArticleProvider>(context, listen: false);
+      var username = authProvider.username;
+      var password = authProvider.password;
+      articleProvider.getArticles(username, password);
+      articles = articleProvider.getArticlesList;
+    }
+    super.didChangeDependencies();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    print(myArticls.length);
 
     return Scaffold(
       appBar: AppBar(
@@ -80,7 +98,7 @@ class _ViewArticleState extends State<ViewArticle> {
                   itemBuilder: (context, index) => GestureDetector(
                     onTap: () {
                       setState(() {
-                        getMyArticls[index].isChecked =
+            /*            getMyArticls[index].isChecked =
                             !getMyArticls[index].isChecked;
                         if (myArticls[index].isChecked) {
                           counter += 1;
@@ -90,19 +108,19 @@ class _ViewArticleState extends State<ViewArticle> {
                           } else {
                             counter -= 1;
                           }
-                        }
+                        }*/
                       });
                     },
                     child: ListTile(
                         leading: Text((index + 1).toString()),
-                        title: Text(myArticls[index].title),
+                        title: Text(articles[index].articleTitle),
                         trailing: Checkbox(
                           checkColor: Colors.white,
                           activeColor: Colors.pink,
                           onChanged: (bool value) {
                             setState(() {
-                              myArticls[index].isChecked = value;
-                              if (myArticls[index].isChecked) {
+                              articles[index].isChecked = value;
+                              if (articles[index].isChecked) {
                                 counter += 1;
                               } else {
                                 if (counter == 0) {
@@ -113,10 +131,10 @@ class _ViewArticleState extends State<ViewArticle> {
                               }
                             });
                           },
-                          value: myArticls[index].isChecked,
+                          value: articles[index].isChecked,
                         )),
                   ),
-                  itemCount: myArticls.length,
+                  itemCount: articles.length,
                 ),
               ),
             ],
@@ -125,7 +143,6 @@ class _ViewArticleState extends State<ViewArticle> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          cleanData();
           Navigator.of(context).pushReplacementNamed(Dashboard.routeName);
         },
         label: Row(

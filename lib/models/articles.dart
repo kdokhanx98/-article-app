@@ -1,44 +1,19 @@
-class Articls {
-  final String id;
-  final String title;
+class Article {
+  final String articleId;
+  final String articleType;
+  final String articleTitle;
+  final String journalTitle;
+  final String articleFileUrl;
+  final String creationDate;
+  final String modifiedDate;
   bool isChecked;
 
-  Articls(this.id, this.title, this.isChecked);
-}
-
-List<Articls> myArticls = <Articls>[
-  new Articls("1", "this title for testing ", false),
-  new Articls("1", "this title for testing ", false),
-  new Articls("1", "this title for testing ", false),
-  new Articls("1", "this title for testing ", false),
-  new Articls("1", "this title for testing ", false),
-  new Articls("1", "this title for testing ", false),
-  new Articls("1", "this title for testing ", false),
-  new Articls("1", "this title for testing ", false),
-  new Articls("1", "this title for testing ", false),
-  new Articls("1", "this title for testing ", false),
-  new Articls("1", "this title for testing ", false),
-  new Articls("1", "this title for testing ", false),
-];
-
-List<Articls> get getMyArticls {
-  return [...myArticls];
-}
-
-cleanData() {
-  myArticls.clear();
-  myArticls = <Articls>[
-    new Articls("1", "this title for testing ", false),
-    new Articls("1", "this title for testing ", false),
-    new Articls("1", "this title for testing ", false),
-    new Articls("1", "this title for testing ", false),
-    new Articls("1", "this title for testing ", false),
-    new Articls("1", "this title for testing ", false),
-    new Articls("1", "this title for testing ", false),
-    new Articls("1", "this title for testing ", false),
-    new Articls("1", "this title for testing ", false),
-    new Articls("1", "this title for testing ", false),
-    new Articls("1", "this title for testing ", false),
-    new Articls("1", "this title for testing ", false),
-  ];
+  Article(
+      {this.articleId,
+      this.articleType,
+      this.articleTitle,
+      this.journalTitle,
+      this.articleFileUrl,
+      this.creationDate,
+      this.modifiedDate});
 }

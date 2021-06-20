@@ -7,21 +7,23 @@ class DoctorItem extends StatelessWidget {
   final String drEmail;
   final String drNumber;
   final String number;
-  final int indxe;
+  final int index;
+  final bool isSearch;
 
   const DoctorItem(
       {Key key,
-      this.drName,
-      this.drEmail,
-      this.drNumber,
-      this.number,
-      this.indxe})
+        this.drName,
+        this.drEmail,
+        this.drNumber,
+        this.number,
+        this.index,
+        this.isSearch})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(10.0),
+      padding: const EdgeInsets.all(5.0),
       child: Container(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -37,16 +39,22 @@ class DoctorItem extends StatelessWidget {
                     SizedBox(
                       width: 10,
                     ),
-                    Text(
-                      drName,
-                      style: TextStyle(fontSize: 17),
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.30,
+                      child: Text(
+                        drName,
+                        style: TextStyle(fontSize: 17),
+                      ),
                     ),
                     SizedBox(
-                      width: 20,
+                      width: 10,
                     ),
-                    Text(
-                      drEmail,
-                      style: TextStyle(fontSize: 17),
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.55,
+                      child: Text(
+                        drEmail,
+                        style: TextStyle(fontSize: 15),
+                      ),
                     ),
                   ],
                 ),
@@ -58,18 +66,21 @@ class DoctorItem extends StatelessWidget {
                   child: Row(
                     children: [
                       SizedBox(
-                        width: 10,
+                        width: 8,
                       ),
-                      Text(drNumber, style: TextStyle(fontSize: 17)),
+                      Container(
+                          width: MediaQuery.of(context).size.width * 0.30,
+                          child:
+                          Text(drNumber, style: TextStyle(fontSize: 15))),
                       SizedBox(
                         width: 15,
                       ),
                       Container(
+                        width: MediaQuery.of(context).size.width * 0.52,
                         alignment: Alignment.bottomRight,
                         child: Row(
                           children: [
                             ElevatedButton(
-
                                 onPressed: () {
                                   Navigator.of(context)
                                       .pushNamed(ViewArticle.routeName);
@@ -83,9 +94,9 @@ class DoctorItem extends StatelessWidget {
                             ),
                             ElevatedButton(
                               onPressed: () {
-                                Navigator.of(context).pushNamed(
+                                Navigator.of(context).pushReplacementNamed(
                                     EditDoctorScreen.routeName,
-                                    arguments: indxe);
+                                    arguments: DoctorItem(isSearch: isSearch, index: index,));
                               },
                               child: Text("Edit"),
                               style: ElevatedButton.styleFrom(
@@ -106,4 +117,6 @@ class DoctorItem extends StatelessWidget {
       ),
     );
   }
+
+
 }

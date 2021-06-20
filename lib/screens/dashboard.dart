@@ -1,5 +1,6 @@
 import 'package:articleaapp/models/user.dart';
 import 'package:articleaapp/provider/auth_provider.dart';
+import 'package:articleaapp/provider/dashboard_provider.dart';
 import 'package:articleaapp/screens/add_article.dart';
 import 'package:articleaapp/screens/add_doctor.dart';
 import 'package:articleaapp/screens/view_article.dart';
@@ -11,14 +12,40 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 
-class Dashboard extends StatelessWidget {
+class Dashboard extends StatefulWidget {
   static const routeName = '/Dashboard';
+
+  @override
+  _DashboardState createState() => _DashboardState();
+}
+
+class _DashboardState extends State<Dashboard> {
+  var userId;
+  bool isInitialize = true;
+  String doctorsEnrolled;
+  String articlesEnrolled;
+
+  @override
+  void didChangeDependencies() {
+    if (isInitialize) {
+      userId = Provider.of<AuthProvider>(context).userId;
+      var dashProvider = Provider.of<DashboardPorivder>(context, listen: false);
+      dashProvider.getArticlesNo(userId);
+      dashProvider.getDoctorsNo(userId);
+      doctorsEnrolled = dashProvider.doctorsNo.toString();
+      articlesEnrolled = dashProvider.articlesNo.toString();
+
+      isInitialize = false;
+    }
+    super.didChangeDependencies();
+  }
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
-    final  userData = Provider.of<AuthProvider>(context).user;
+    final userData = Provider.of<AuthProvider>(context).user;
+
     return Scaffold(
         key: _scaffoldKey,
         drawer: Drawers(),
@@ -29,7 +56,9 @@ class Dashboard extends StatelessWidget {
                 Icons.sync_sharp,
                 size: 30.0,
               ),
-              onPressed: () {},
+              onPressed: () {
+                setState(() {});
+              },
             ),
           ],
           centerTitle: true,
@@ -76,9 +105,13 @@ class Dashboard extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.only(left: 16.0, top: 8.0),
                   child: Text(
-                     userData != null ?
-                    "Welcome, ${userData.tmEmail} - ${userData.tmEmployeeCode}": "No User data",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                    userData != null
+                        ? "Welcome, ${userData.tmName} - ${userData.tmEmployeeCode}"
+                        : "No User data",
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
                   ),
                 ),
               ),
@@ -98,7 +131,9 @@ class Dashboard extends StatelessWidget {
                         width: MediaQuery.of(context).size.width * 0.40,
                       ),
                     ),
-                    SizedBox(width: 15,),
+                    SizedBox(
+                      width: 15,
+                    ),
                     Padding(
                       padding: const EdgeInsets.only(top: 12),
                       child: Image.asset("assets/images/bran2.png",
@@ -129,7 +164,7 @@ class Dashboard extends StatelessWidget {
                             SizedBox(
                               height: 10,
                             ),
-                            Text("0",
+                            Text(doctorsEnrolled == null? "0" : doctorsEnrolled,
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 20,
@@ -158,7 +193,7 @@ class Dashboard extends StatelessWidget {
                             SizedBox(
                               height: 10,
                             ),
-                            Text("0",
+                            Text(articlesEnrolled == null ? "0" : articlesEnrolled,
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 20,
@@ -180,8 +215,8 @@ class Dashboard extends StatelessWidget {
                           Navigator.of(context)
                               .pushNamed(AddDoctorScreen.routeName);
                         },
-                        child: card(
-                            "Add Doctor", "assets/images/add_doctor.png", context, false)),
+                        child: card("Add Doctor",
+                            "assets/images/add_doctor.png", context, false)),
                     GestureDetector(
                       onTap: () {
                         Navigator.of(context).pushNamed(ViewDoctor.routeName);
@@ -204,9 +239,9 @@ class Dashboard extends StatelessWidget {
         ));
   }
 
-  Widget card(String title, String img, BuildContext context, [bool isSvg = true]) {
+  Widget card(String title, String img, BuildContext context,
+      [bool isSvg = true]) {
     return SizedBox(
-
       width: MediaQuery.of(context).size.width * 1,
       height: 100.0,
       child: Card(
@@ -219,24 +254,34 @@ class Dashboard extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              isSvg?
-              SvgPicture.asset(
-                img,
-                color: Colors.white,
-                width: 55,
-                height: 55,
-              ) : Image.asset(img, color: Colors.white,),
+              isSvg
+                  ? SvgPicture.asset(
+                      img,
+                      color: Colors.white,
+                      width: 55,
+                      height: 55,
+                    )
+                  : Image.asset(
+                      img,
+                      color: Colors.white,
+                    ),
               SizedBox(
                 width: 20.0,
               ),
               Text(
                 title,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0, color: Colors.white),
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20.0,
+                    color: Colors.white),
               ),
               SizedBox(
                 width: 30,
               ),
-              Icon(Icons.arrow_forward_ios, color: Colors.white,)
+              Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.white,
+              )
             ],
           ),
         )),

@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:articleaapp/provider/auth_provider.dart';
+import 'package:articleaapp/provider/dashboard_provider.dart';
 import 'package:articleaapp/provider/doctor_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -44,7 +45,12 @@ class _AddDoctorScreenState extends State<AddDoctorScreen> {
       backgroundColor: Colors.green,
       textColor: Colors.white,
       fontSize: 16.0
-      ).whenComplete(() => Navigator.of(context).pop());
+      ).whenComplete(() {
+        var dashProvider = Provider.of<DashboardPorivder>(context, listen: false);
+        dashProvider.getArticlesNo(userId);
+        dashProvider.getDoctorsNo(userId).then((value) => Navigator.of(context).pop());
+
+      });
 
       });
     }

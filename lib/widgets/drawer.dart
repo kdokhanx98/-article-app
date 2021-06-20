@@ -1,8 +1,10 @@
 import 'package:articleaapp/screens/add_doctor.dart';
+import 'package:articleaapp/screens/dashboard.dart';
 import 'package:articleaapp/screens/login_screen.dart';
 import 'package:articleaapp/screens/view_doctor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class Drawers extends StatelessWidget {
   @override
@@ -78,7 +80,7 @@ class Drawers extends StatelessWidget {
               // ),
               Divider(),
 
-              GestureDetector(
+     /*         GestureDetector(
                 onTap: () {
                   Navigator.of(context)
                       .pushReplacementNamed(LoginScreen.routeName);
@@ -88,11 +90,14 @@ class Drawers extends StatelessWidget {
                     Icons.sync_sharp,
                     color: Colors.black,
                   ),
-                  title: Text('Pull Data '),
-                  onTap: () {},
+                  title: Text('Pull Data'),
+                  onTap: () {
+                    Navigator.of(context)
+                      .pop(Dashboard.routeName);
+                  },
                 ),
               ),
-              Divider(),
+              Divider(),*/
               GestureDetector(
                 onTap: () {
                   Navigator.of(context)

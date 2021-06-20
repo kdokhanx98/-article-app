@@ -7,9 +7,11 @@ class AuthProvider with ChangeNotifier {
 
   User user;
   String userId;
+  String username;
+  String password;
 
   Future<User> login(String username, String password) async {
-    final url = Uri.parse("https://humgicwale.com/articlealert/API_TM/tmlogin");
+    final url = Uri.parse("https://fdcarticlealert.com/API_TM/tmlogin");
     Map<String, String> loginDetail = {
       "username": username,
       "password": password,
@@ -19,6 +21,8 @@ class AuthProvider with ChangeNotifier {
       final responseData = json.decode(response.body);
 
        userId = responseData["TMid"];
+       username = responseData["TMemployeecode"];
+       password = responseData["TMpwd"];
       if(userId != null && userId.length > 0){
          user = new User(responseData["TMid"], responseData["TMname"],
             responseData["TMemployeecode"], responseData["TMpwd"],
