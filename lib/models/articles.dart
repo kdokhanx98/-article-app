@@ -6,7 +6,7 @@ class Article {
   final String articleFileUrl;
   final String creationDate;
   final String modifiedDate;
-  bool isChecked;
+  bool isChecked = false;
 
   Article(
       {this.articleId,

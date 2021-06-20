@@ -27,8 +27,10 @@ class ArticleProvider with ChangeNotifier{
       final responseData = json.decode(response.body);
       final listData = responseData as List<dynamic>;
       _articles.clear();
-      listData.map((e) => _articles.add(Article(articleId: e["artiid"], articleFileUrl: e["Articlefile"], articleTitle: e["Arttitle"], articleType: e["Articletype"],
+      listData.map((e) => _articles.add(new Article(articleId: e["artiid"], articleFileUrl: e["Articlefile"], articleTitle: e["Arttitle"], articleType: e["Articletype"],
           journalTitle: e["journaltitle"], creationDate: e["createdDate"], modifiedDate: e["modifiedDate"]))).toList();
+      notifyListeners();
+      print("articles length : ${_articles.length}");
     } catch (e) {
       print(e);
     }

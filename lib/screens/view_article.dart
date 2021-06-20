@@ -30,8 +30,8 @@ class _ViewArticleState extends State<ViewArticle> {
       isInitialized = false;
       var authProvider = Provider.of<AuthProvider>(context, listen: false);
       var articleProvider = Provider.of<ArticleProvider>(context, listen: false);
-      var username = authProvider.username;
-      var password = authProvider.password;
+      var username = authProvider.employeeCode;
+      var password = authProvider.employeePass;
       articleProvider.getArticles(username, password);
       articles = articleProvider.getArticlesList;
     }
@@ -98,9 +98,9 @@ class _ViewArticleState extends State<ViewArticle> {
                   itemBuilder: (context, index) => GestureDetector(
                     onTap: () {
                       setState(() {
-            /*            getMyArticls[index].isChecked =
+               /*         getMyArticls[index].isChecked =
                             !getMyArticls[index].isChecked;
-                        if (myArticls[index].isChecked) {
+                        if (articles[index].isChecked) {
                           counter += 1;
                         } else {
                           if (counter == 0) {
@@ -118,7 +118,7 @@ class _ViewArticleState extends State<ViewArticle> {
                           checkColor: Colors.white,
                           activeColor: Colors.pink,
                           onChanged: (bool value) {
-                            setState(() {
+                     /*       setState(() {
                               articles[index].isChecked = value;
                               if (articles[index].isChecked) {
                                 counter += 1;
@@ -129,9 +129,9 @@ class _ViewArticleState extends State<ViewArticle> {
                                   counter -= 1;
                                 }
                               }
-                            });
+                            });*/
                           },
-                          value: articles[index].isChecked,
+                          value: false,
                         )),
                   ),
                   itemCount: articles.length,

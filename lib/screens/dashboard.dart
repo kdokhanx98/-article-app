@@ -46,6 +46,11 @@ class _DashboardState extends State<Dashboard> {
   Widget build(BuildContext context) {
     final userData = Provider.of<AuthProvider>(context).user;
 
+    var dashProvider = Provider.of<DashboardPorivder>(context);
+    doctorsEnrolled = dashProvider.doctorsNo.toString();
+    articlesEnrolled = dashProvider.articlesNo.toString();
+
+
     return Scaffold(
         key: _scaffoldKey,
         drawer: Drawers(),

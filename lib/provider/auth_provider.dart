@@ -7,8 +7,8 @@ class AuthProvider with ChangeNotifier {
 
   User user;
   String userId;
-  String username;
-  String password;
+  String employeeCode;
+  String employeePass;
 
   Future<User> login(String username, String password) async {
     final url = Uri.parse("https://fdcarticlealert.com/API_TM/tmlogin");
@@ -21,8 +21,8 @@ class AuthProvider with ChangeNotifier {
       final responseData = json.decode(response.body);
 
        userId = responseData["TMid"];
-       username = responseData["TMemployeecode"];
-       password = responseData["TMpwd"];
+      employeeCode = responseData["TMemployeecode"];
+      employeePass = responseData["TMpwd"];
       if(userId != null && userId.length > 0){
          user = new User(responseData["TMid"], responseData["TMname"],
             responseData["TMemployeecode"], responseData["TMpwd"],
