@@ -37,4 +37,23 @@ class ArticleProvider with ChangeNotifier{
 
   }
 
+  Future<void> assignArticle (String docId, String articleId) async {
+    final assignArticleUrl = Uri.parse("https://fdcarticlealert.com/API_Article/assignarticletodoctor");
+
+    Map<String, String> articlesBody = {
+      "doc_id": docId,
+      "article": articleId,
+    };
+
+    try {
+      final response = await http.post(assignArticleUrl, body: articlesBody);
+      final responseData = json.decode(response.body);
+
+      print("assign response : $responseData");
+    } catch (e) {
+      print(e);
+    }
+
+  }
+
 }

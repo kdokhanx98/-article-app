@@ -2,8 +2,8 @@ import 'package:articleaapp/models/articles.dart';
 import 'package:articleaapp/provider/articles_provider.dart';
 import 'package:articleaapp/provider/auth_provider.dart';
 import 'package:articleaapp/screens/dashboard.dart';
-import 'package:articleaapp/screens/view_doctor.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
 class ViewArticle extends StatefulWidget {
@@ -17,6 +17,9 @@ class _ViewArticleState extends State<ViewArticle> {
   int counter = 0;
   bool isInitialized = true;
   List<Article> articles = [];
+  List<String> checkedArticlesIds = [];
+  String docId;
+  bool isDone = false;
 
   @override
   void dispose() {
@@ -26,21 +29,34 @@ class _ViewArticleState extends State<ViewArticle> {
   @override
   void didChangeDependencies() {
 
-    if(isInitialized){
+    if (isInitialized) {
       isInitialized = false;
+      docId = ModalRoute.of(context).settings.arguments as String;
+      var articleProvider = Provider.of<ArticleProvider>(context, listen: true);
+      if(articleProvider.getArticlesList.length > 0){
+        articles = articleProvider.getArticlesList;
+        articles.map((e) {
+          if(e.isChecked){
+            e.isChecked = false;
+          }
+        }
+        ).toList();
+        return;
+      }
+
       var authProvider = Provider.of<AuthProvider>(context, listen: false);
-      var articleProvider = Provider.of<ArticleProvider>(context, listen: false);
       var username = authProvider.employeeCode;
       var password = authProvider.employeePass;
-      articleProvider.getArticles(username, password);
-      articles = articleProvider.getArticlesList;
+
+
+      articleProvider.getArticles(username, password).then((value) =>  articles = articleProvider.getArticlesList);
+
     }
     super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -90,36 +106,17 @@ class _ViewArticleState extends State<ViewArticle> {
               SizedBox(
                 height: 10,
               ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 80),
-                child: ListView.builder(
-                  physics: BouncingScrollPhysics(),
-                  shrinkWrap: true,
-                  itemBuilder: (context, index) => GestureDetector(
-                    onTap: () {
-                      setState(() {
-               /*         getMyArticls[index].isChecked =
-                            !getMyArticls[index].isChecked;
-                        if (articles[index].isChecked) {
-                          counter += 1;
-                        } else {
-                          if (counter == 0) {
-                            counter = 0;
-                          } else {
-                            counter -= 1;
-                          }
-                        }*/
-                      });
-                    },
-                    child: ListTile(
-                        leading: Text((index + 1).toString()),
-                        title: Text(articles[index].articleTitle),
-                        trailing: Checkbox(
-                          checkColor: Colors.white,
-                          activeColor: Colors.pink,
-                          onChanged: (bool value) {
-                     /*       setState(() {
-                              articles[index].isChecked = value;
+              articles.length > 0
+                  ? Padding(
+                      padding: const EdgeInsets.only(bottom: 80),
+                      child: ListView.builder(
+                        physics: BouncingScrollPhysics(),
+                        shrinkWrap: true,
+                        itemBuilder: (context, index) => GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              articles[index].isChecked =
+                                  !articles[index].isChecked;
                               if (articles[index].isChecked) {
                                 counter += 1;
                               } else {
@@ -129,24 +126,75 @@ class _ViewArticleState extends State<ViewArticle> {
                                   counter -= 1;
                                 }
                               }
-                            });*/
+                            });
                           },
-                          value: false,
-                        )),
-                  ),
-                  itemCount: articles.length,
-                ),
-              ),
+                          child: ListTile(
+                              leading: Text((index + 1).toString()),
+                              title: Text(articles[index].articleTitle),
+                              trailing: Checkbox(
+                                checkColor: Colors.white,
+                                activeColor: Colors.pink,
+                                onChanged: (bool value) {
+                                  setState(() {
+                                    articles[index].isChecked = value;
+                                    if (articles[index].isChecked) {
+                                      counter += 1;
+                                    } else {
+                                      if (counter == 0) {
+                                        counter = 0;
+                                      } else {
+                                        counter -= 1;
+                                      }
+                                    }
+                                  });
+                                },
+                                value: articles[index].isChecked,
+                              )),
+                        ),
+                        itemCount: articles.length,
+                      ),
+                    )
+                  : Container(
+                      height: MediaQuery.of(context).size.height * 0.7,
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      )),
             ],
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.of(context).pushReplacementNamed(Dashboard.routeName);
-        },
+      floatingActionButton:  counter > 0 ? FloatingActionButton.extended(
+        onPressed: !isDone ?  () {
+          checkedArticlesIds.clear();
+          setState(() {
+            isDone = !isDone;
+          });
+       articles.where((element)  {
+            if(element.isChecked){
+              checkedArticlesIds.add(element.articleId);
+              return true;
+            }
+            return false;
+          }).toList();
+          String checkedArticles = checkedArticlesIds.join(',');
+          Provider.of<ArticleProvider>(context, listen: false)
+              .assignArticle(docId, checkedArticles)
+              .then((value) {
+            Fluttertoast.showToast(
+                    msg: "Assigned Successfully",
+                    toastLength: Toast.LENGTH_LONG,
+                    gravity: ToastGravity.BOTTOM,
+                    timeInSecForIosWeb: 1,
+                    backgroundColor: Colors.green,
+                    textColor: Colors.white,
+                    fontSize: 16.0)
+                .whenComplete(() {
+              Navigator.of(context).pushReplacementNamed(Dashboard.routeName);
+            });
+          });
+        } : null,
         label: Row(
-          children: [
+          children: !isDone ? [
             Text(
               'Assign Article  ',
               style: TextStyle(color: Colors.white, fontSize: 17),
@@ -155,10 +203,13 @@ class _ViewArticleState extends State<ViewArticle> {
               '$counter',
               style: TextStyle(color: Colors.white, fontSize: 20),
             ),
-          ],
+          ] : [
+            Center(
+            child: CircularProgressIndicator(backgroundColor: Colors.white,),
+      )],
         ),
         backgroundColor: Colors.pink,
-      ),
+      ) : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }

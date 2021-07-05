@@ -2,17 +2,17 @@ import 'package:articleaapp/provider/articles_provider.dart';
 import 'package:articleaapp/provider/auth_provider.dart';
 import 'package:articleaapp/provider/dashboard_provider.dart';
 import 'package:articleaapp/provider/doctor_provider.dart';
+import 'package:articleaapp/screens/my_profile.dart';
 import 'package:articleaapp/styling.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'screens/add_article.dart';
+import 'Database/database_helper.dart';
 import 'screens/add_doctor.dart';
 import 'screens/dashboard.dart';
 import 'screens/edit_doctor.dart';
 import 'screens/login_screen.dart';
 import 'screens/view_article.dart';
-import 'screens/view_article_screen.dart';
 import 'screens/view_doctor.dart';
 
 void main() {
@@ -29,6 +29,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return MultiProvider(providers: [ListenableProvider<AuthProvider>(create: (_) => AuthProvider()), ListenableProvider<ArticleProvider>(create: (_) => ArticleProvider()), ListenableProvider<DashboardPorivder>(create: (_) => DashboardPorivder()), ListenableProvider<DoctorProvider>(create: (_) => DoctorProvider()), ],
         child: MaterialApp(
       theme: ThemeData(
@@ -73,7 +74,7 @@ class MyApp extends StatelessWidget {
         LoginScreen.routeName: (context) => LoginScreen(),
         Dashboard.routeName: (context) => Dashboard(),
         AddDoctorScreen.routeName: (context) => AddDoctorScreen(),
-        AddAticleScreen.routeName: (context) => AddAticleScreen(),
+        MyProfile.routeName: (context) => MyProfile(),
        // ViewArticleScreen.routeName: (context) => ViewArticleScreen(),
         ViewArticle.routeName: (context) => ViewArticle(),
         ViewDoctor.routeName: (context) => ViewDoctor(),

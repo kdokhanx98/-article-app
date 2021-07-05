@@ -1,4 +1,3 @@
-
 import 'package:articleaapp/models/user.dart';
 import 'package:articleaapp/provider/auth_provider.dart';
 import 'package:flutter/scheduler.dart' show timeDilation;
@@ -11,7 +10,6 @@ import 'dashboard.dart';
 
 class LoginScreen extends StatelessWidget {
   static const routeName = '/auth';
-
 
   Duration get loginTime => Duration(milliseconds: timeDilation.ceil() * 2250);
 
@@ -49,75 +47,78 @@ class LoginScreen extends StatelessWidget {
           image: DecorationImage(image: AssetImage('assets/images/login_bg.jpg'), fit: BoxFit.fill,),
 
         ),
-        child: FlutterLogin(
-          emailValidator: (value)  {
-            if(value.isEmpty){
-              return 'Employee Code is empty';
-            }
-            return null;
-          },
-          messages: LoginMessages(
-            usernameHint: "Employee Code"
+        child: SizedBox(
+          child: FlutterLogin(
+
+            emailValidator: (value)  {
+              if(value.isEmpty){
+                return 'Employee Code is empty';
+              }
+              return null;
+            },
+
+            messages: LoginMessages(
+              usernameHint: "Employee Code"
+            ),
+            theme: LoginTheme(
+              buttonTheme: LoginButtonTheme(backgroundColor: Colors.pink),
+              primaryColor: Colors.pink,
+                pageColorLight: Colors.transparent,
+                pageColorDark: Colors.transparent,
+
+             //   textFieldStyle: TextStyle(color: Colors.pink, backgroundColor: Colors.pink)
+            ),
+            //   title: Constants.appName,
+            logo: "assets/images/logo.png",
+
+            // userValidator: (value) {
+            //   if (!value.contains('@') || !value.endsWith('.com')) {
+            //     return "Email must contain '@' and end with '.com'";
+            //   }
+            //   return null;
+            // },
+            passwordValidator: (value) {
+              if (value.isEmpty) {
+                return 'Password is empty';
+              }
+              return null;
+            },
+            hideSignUpButton: true,
+            hideForgotPasswordButton: true,
+
+            onLogin: (loginData) async {
+
+              User user = await Provider.of<AuthProvider>(context, listen: false).login(loginData.name, loginData.password);
+
+              if(user != null && user.tmId.length > 0){
+                Navigator.of(context).pushReplacementNamed(Dashboard.routeName);
+                return _loginUser(loginData);
+              }else{
+                return _loginUser(null);
+              }
+
+            },
+            // onSignup: (loginData) {
+            //   print('Signup info');
+            //   print('Name: ${loginData.name}');
+            //   print('Password: ${loginData.password}');
+            //   return _loginUser(loginData);
+            // },
+            onSignup: (_) => Future(null),
+
+            onSubmitAnimationCompleted: () {
+              Navigator.of(context).pushReplacement(FadePageRoute(
+                builder: (context) => Dashboard(),
+              ));
+            },
+            onRecoverPassword: (name) {
+              print('Recover password info');
+              print('Name: $name');
+              return _recoverPassword(name);
+              // Show new password dialog
+            },
+            // showDebugButtons: true,
           ),
-          theme: LoginTheme(
-            buttonTheme: LoginButtonTheme(backgroundColor: Colors.pink),
-            primaryColor: Colors.transparent
-          ),
-          //   title: Constants.appName,
-          logo: "assets/images/logo.png",
-
-          // userValidator: (value) {
-          //   if (!value.contains('@') || !value.endsWith('.com')) {
-          //     return "Email must contain '@' and end with '.com'";
-          //   }
-          //   return null;
-          // },
-          passwordValidator: (value) {
-            if (value.isEmpty) {
-              return 'Password is empty';
-            }
-            return null;
-          },
-          hideSignUpButton: true,
-          hideForgotPasswordButton: true,
-
-          onLogin: (loginData) async {
-            
-            User user = await Provider.of<AuthProvider>(context, listen: false).login(loginData.name, loginData.password);
-
-            if(user != null && user.tmId.length > 0){
-              Navigator.of(context).pushReplacementNamed(Dashboard.routeName);
-              return _loginUser(loginData);
-            }else{
-              return _loginUser(null);
-            }
-
-            print('Login info');
-            print('Name: ${loginData.name}');
-            print('Password: ${loginData.password}');
-            return _loginUser(loginData);
-
-          },
-          // onSignup: (loginData) {
-          //   print('Signup info');
-          //   print('Name: ${loginData.name}');
-          //   print('Password: ${loginData.password}');
-          //   return _loginUser(loginData);
-          // },
-          onSignup: (_) => Future(null),
-
-          onSubmitAnimationCompleted: () {
-            Navigator.of(context).pushReplacement(FadePageRoute(
-              builder: (context) => Dashboard(),
-            ));
-          },
-          onRecoverPassword: (name) {
-            print('Recover password info');
-            print('Name: $name');
-            return _recoverPassword(name);
-            // Show new password dialog
-          },
-          // showDebugButtons: true,
         ),
       ),
     );

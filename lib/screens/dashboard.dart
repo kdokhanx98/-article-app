@@ -1,10 +1,8 @@
-import 'package:articleaapp/models/user.dart';
+import 'package:articleaapp/Database/database_helper.dart';
 import 'package:articleaapp/provider/auth_provider.dart';
 import 'package:articleaapp/provider/dashboard_provider.dart';
-import 'package:articleaapp/screens/add_article.dart';
+import 'package:articleaapp/provider/doctor_provider.dart';
 import 'package:articleaapp/screens/add_doctor.dart';
-import 'package:articleaapp/screens/view_article.dart';
-import 'package:articleaapp/screens/view_article_screen.dart';
 import 'package:articleaapp/screens/view_doctor.dart';
 import 'package:articleaapp/styling.dart';
 import 'package:articleaapp/widgets/drawer.dart';
@@ -20,20 +18,26 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
-  var userId;
+  var userId, docProvider;
   bool isInitialize = true;
-  String doctorsEnrolled;
-  String articlesEnrolled;
+  String doctorsEnrolled = "0";
+  String articlesEnrolled = "0";
 
   @override
   void didChangeDependencies() {
     if (isInitialize) {
+      DatabaseHelper dbHelper = DatabaseHelper();
+      docProvider = Provider.of<DoctorProvider>(context);
+      dbHelper.getDoctorsList().then((value) => print("length is ${value}"));
+
       userId = Provider.of<AuthProvider>(context).userId;
-      var dashProvider = Provider.of<DashboardPorivder>(context, listen: false);
+      var dashProvider = Provider.of<DashboardPorivder>(context);
       dashProvider.getArticlesNo(userId);
       dashProvider.getDoctorsNo(userId);
       doctorsEnrolled = dashProvider.doctorsNo.toString();
       articlesEnrolled = dashProvider.articlesNo.toString();
+
+
 
       isInitialize = false;
     }
@@ -111,7 +115,7 @@ class _DashboardState extends State<Dashboard> {
                   padding: const EdgeInsets.only(left: 16.0, top: 8.0),
                   child: Text(
                     userData != null
-                        ? "Welcome, ${userData.tmName} - ${userData.tmEmployeeCode}"
+                        ? "Welcome ${userData.tmName} - ${userData.tmEmployeeCode}"
                         : "No User data",
                     style: TextStyle(
                         fontSize: 16,
@@ -162,14 +166,14 @@ class _DashboardState extends State<Dashboard> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              "Doctor's Enrolled This Month",
+                              "Doctors Enrolled This Month",
                               style:
                                   TextStyle(color: Colors.white, fontSize: 13),
                             ),
                             SizedBox(
                               height: 10,
                             ),
-                            Text(doctorsEnrolled == null? "0" : doctorsEnrolled,
+                            Text(doctorsEnrolled == null ? "0" : doctorsEnrolled,
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 20,
@@ -190,7 +194,7 @@ class _DashboardState extends State<Dashboard> {
                         Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text("Article Assigned This Month",
+                            Text("Articles Assigned This Month",
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 13,
@@ -226,7 +230,7 @@ class _DashboardState extends State<Dashboard> {
                       onTap: () {
                         Navigator.of(context).pushNamed(ViewDoctor.routeName);
                       },
-                      child: card("Manage Doctor",
+                      child: card("Manage Doctors",
                           "assets/svg/list_of_doctor.svg", context),
                     ),
                     // GestureDetector(

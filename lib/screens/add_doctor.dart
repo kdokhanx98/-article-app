@@ -1,5 +1,5 @@
-import 'dart:math';
 
+import 'package:articleaapp/models/city.dart';
 import 'package:articleaapp/provider/auth_provider.dart';
 import 'package:articleaapp/provider/dashboard_provider.dart';
 import 'package:articleaapp/provider/doctor_provider.dart';
@@ -8,7 +8,6 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
-import 'dashboard.dart';
 
 
 class AddDoctorScreen extends StatefulWidget {
@@ -16,27 +15,73 @@ class AddDoctorScreen extends StatefulWidget {
   static const routeName = '/AddDoctorScreen';
 
 
+
   @override
   _AddDoctorScreenState createState() => _AddDoctorScreenState();
 }
 
 class _AddDoctorScreenState extends State<AddDoctorScreen> {
+  List<City> searchCities = [];
+  List<String> cities = [];
   GlobalKey<FormState> formKey = GlobalKey();
   final nameController = TextEditingController();
   final mobileController = TextEditingController();
   final emailController = TextEditingController();
   final cityController = TextEditingController();
+  bool isInitialized = true;
+  bool isDone = false;
+  String city;
+  String cityId;
 
-  
+  @override
+  void didChangeDependencies() {
+    if (isInitialized) {
+      isInitialized = false;
+      final docProvider = Provider.of<DoctorProvider>(context);
+      if(docProvider.getCitiesList.length > 0){
+        searchCities = docProvider.getCitiesList;
+        if(cities.length == 0) {
+          searchCities.map((e) {
+            cities.add(e.cityName);
+          }).toList();
+        }
+        return;
+      }
+        docProvider.getCities().then((value) {
+          searchCities = docProvider.getCitiesList;
+          searchCities.map((e) {
+            cities.add(e.cityName);
+          }).toList();
+        });
+
+    }
+
+    super.didChangeDependencies();
+  }
+
+
+
+
   saveForm(BuildContext context){
     final isValid = formKey.currentState.validate();
 
-    if(!isValid){
+    if(!isValid || city == null || city.isEmpty){
+      Fluttertoast.showToast(msg: "Please choose a city");
       return;
     }else{
+      searchCities.map((e) {
+        if(e.cityName == city){
+          cityId = e.cityId;
+        }
+      }).toList();
+      setState(() {
+        isDone = !isDone;
+      });
       final userId = Provider.of<AuthProvider>(context, listen: false).userId;
       formKey.currentState.save();
-      Provider.of<DoctorProvider>(context, listen: false).addDoctor(docName: nameController.text, docCity: cityController.text, docMobile: mobileController.text, docEmail: emailController.text, tmId: userId).then((value)  {
+      Provider.of<DoctorProvider>(context, listen: false).addDoctor(docName: nameController.text, docCity: cityId,
+          docMobile: mobileController.text, docEmail: emailController.text, tmId: userId).then((value)  {
+
       Fluttertoast.showToast(
       msg: "Added Successfully",
       toastLength: Toast.LENGTH_LONG,
@@ -48,16 +93,17 @@ class _AddDoctorScreenState extends State<AddDoctorScreen> {
       ).whenComplete(() {
         var dashProvider = Provider.of<DashboardPorivder>(context, listen: false);
         dashProvider.getArticlesNo(userId);
-        dashProvider.getDoctorsNo(userId).then((value) => Navigator.of(context).pop());
+        dashProvider.getDoctorsNo(userId).whenComplete(() => Navigator.of(context).pop());
 
       });
 
       });
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
+    print(cities.length);
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -170,35 +216,50 @@ class _AddDoctorScreenState extends State<AddDoctorScreen> {
                         SizedBox(
                           height: 10,
                         ),
-                        Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 0),
-                            child: TextFormField(
-                              keyboardType: TextInputType.phone,
-                              controller: cityController,
-                              decoration: InputDecoration(
-                                border: InputBorder.none,
-                                labelText: "City",
-                                labelStyle: TextStyle(fontSize: 18),
-                                hintStyle:
-                                TextStyle(color: Colors.grey, fontSize: 10),
-                              ),
-                              style: TextStyle(fontSize: 15),
-                              validator: (value) {
-                                if (value.isEmpty) {
-                                  return 'Enter doctor\'s city';
-                                }
-
-                                return null;
-                              },
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 0),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            value: city,
+                            //elevation: 5,
+                            icon: Icon(
+                              Icons.arrow_drop_down,
+                              color: Colors.grey,
                             ),
+                            style: TextStyle(
+                                color: Colors.black, fontSize: 17),
+                            isExpanded: true,
+
+                            items:  cities.map<DropdownMenuItem<String>> (
+                                (String value) {
+                                  return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                  );
+                                }).toList(),
+                            hint: cities.length > 0 ? Text(
+                              "City -  No Selected",
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.grey,
+                              ),
+                            ): Text("Loading data.."),
+                            onChanged: (String value) {
+                              setState(() {
+                                city = value;
+                              });
+                            },
                           ),
                         ),
+                      ),
+                    ),
+
                         SizedBox(
                           height: 10,
                         ),
@@ -223,7 +284,7 @@ class _AddDoctorScreenState extends State<AddDoctorScreen> {
                               style: TextStyle(fontSize: 15),
                               validator: (value) {
                                 if (value.isEmpty) {
-                                  return 'Enter Doctor\'s mobile';
+                                  return 'Enter doctor\'s mobile';
                                 }
 
                                 return null;
@@ -246,10 +307,10 @@ class _AddDoctorScreenState extends State<AddDoctorScreen> {
                       borderRadius: BorderRadius.circular(5)),
                   width: MediaQuery.of(context).size.width * 0.9,
                   height: 50.0,
-                  child: RaisedButton(
+                  child: isDone == false ? RaisedButton(
                     onPressed: () {
                      saveForm(context);
-                    
+
                     },
                     textColor: Colors.white,
                     color: Theme.of(context).accentColor,
@@ -262,7 +323,7 @@ class _AddDoctorScreenState extends State<AddDoctorScreen> {
                     ),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(5)),
-                  ),
+                  ) : Center(child: CircularProgressIndicator(backgroundColor: Colors.white,),),
                 ),
               ),
             ],
@@ -272,8 +333,9 @@ class _AddDoctorScreenState extends State<AddDoctorScreen> {
     );
   }
   bool isValidEmail(String email) {
+    String email2 = email.trim();
     return RegExp(
         r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
-        .hasMatch(email);
+        .hasMatch(email2);
   }
 }

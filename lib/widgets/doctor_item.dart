@@ -9,6 +9,8 @@ class DoctorItem extends StatelessWidget {
   final String number;
   final int index;
   final bool isSearch;
+  final String docId;
+  final String docCity;
 
   const DoctorItem(
       {Key key,
@@ -17,7 +19,8 @@ class DoctorItem extends StatelessWidget {
         this.drNumber,
         this.number,
         this.index,
-        this.isSearch})
+        this.docCity,
+        this.isSearch, this.docId})
       : super(key: key);
 
   @override
@@ -83,7 +86,8 @@ class DoctorItem extends StatelessWidget {
                             ElevatedButton(
                                 onPressed: () {
                                   Navigator.of(context)
-                                      .pushNamed(ViewArticle.routeName);
+                                      .pushNamed(ViewArticle.routeName,
+                                  arguments: docId);
                                 },
                                 style: ElevatedButton.styleFrom(
                                   primary: Theme.of(context).accentColor,
@@ -94,9 +98,9 @@ class DoctorItem extends StatelessWidget {
                             ),
                             ElevatedButton(
                               onPressed: () {
-                                Navigator.of(context).pushReplacementNamed(
+                                Navigator.of(context).pushNamed(
                                     EditDoctorScreen.routeName,
-                                    arguments: DoctorItem(isSearch: isSearch, index: index,));
+                                    arguments: DoctorItem(isSearch: isSearch, index: index, docCity: docCity,));
                               },
                               child: Text("Edit"),
                               style: ElevatedButton.styleFrom(

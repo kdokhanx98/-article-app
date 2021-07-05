@@ -1,4 +1,3 @@
-import 'package:articleaapp/models/articles.dart';
 import 'package:articleaapp/models/doctor.dart';
 import 'package:articleaapp/provider/auth_provider.dart';
 import 'package:articleaapp/provider/doctor_provider.dart';
@@ -16,6 +15,7 @@ class ViewDoctor extends StatefulWidget {
 class _ViewDoctorState extends State<ViewDoctor> {
   bool isSearchClicked = false;
   bool isInitialize = true;
+  bool showProgressDialog = true;
   List<Doctor> doctorsList = [];
   List<Doctor> searchedList = [];
   var provider;
@@ -25,13 +25,17 @@ class _ViewDoctorState extends State<ViewDoctor> {
   void didChangeDependencies() {
     provider = Provider.of<DoctorProvider>(context);
     if (isInitialize) {
-      userId = Provider
-          .of<AuthProvider>(context)
-          .userId;
-      Provider.of<DoctorProvider>(context, listen: false)
-          .getDoctors(userId)
-          .then((value) => doctorsList = provider.getDoctorList);
       isInitialize = false;
+      userId = Provider.of<AuthProvider>(context).userId;
+      Provider.of<DoctorProvider>(context)
+          .getDoctors(userId)
+          .then((value) {
+            doctorsList = provider.getDoctorList;
+            setState(() {
+              showProgressDialog = false;
+            });
+          });
+
     }
     super.didChangeDependencies();
   }
@@ -149,7 +153,7 @@ class _ViewDoctorState extends State<ViewDoctor> {
                 ],
               ),
             ),
-            !isSearchClicked ? doctorsList.length > 0 ? Padding(
+            !isSearchClicked ? !showProgressDialog ? Padding(
               padding: const EdgeInsets.only(bottom: 4),
               child: ListView.builder(
                 physics: BouncingScrollPhysics(),
@@ -160,6 +164,8 @@ class _ViewDoctorState extends State<ViewDoctor> {
                       drName: doctorsList[index].docName,
                       drEmail: doctorsList[index].docEmail,
                       drNumber: doctorsList[index].docMobile,
+                      docId: doctorsList[index].docId,
+                      docCity: doctorsList[index].docCity,
                       isSearch: false,
                       index: index,
                     ),
@@ -181,6 +187,8 @@ class _ViewDoctorState extends State<ViewDoctor> {
                       drName: searchedList[index].docName,
                       drEmail: searchedList[index].docEmail,
                       drNumber: searchedList[index].docMobile,
+                      docId: searchedList[index].docId,
+                      docCity: searchedList[index].docCity,
                       isSearch: true,
                       index: index,
                     ),
@@ -189,7 +197,7 @@ class _ViewDoctorState extends State<ViewDoctor> {
             ) : Container(height: MediaQuery
                 .of(context)
                 .size
-                .height * 0.7,
+                .height * 0.2,
                 child: Center(child: CircularProgressIndicator(),))
             ,
           ],

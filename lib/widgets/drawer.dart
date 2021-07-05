@@ -1,10 +1,9 @@
 import 'package:articleaapp/screens/add_doctor.dart';
-import 'package:articleaapp/screens/dashboard.dart';
 import 'package:articleaapp/screens/login_screen.dart';
+import 'package:articleaapp/screens/my_profile.dart';
 import 'package:articleaapp/screens/view_doctor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 class Drawers extends StatelessWidget {
   @override
@@ -41,8 +40,8 @@ class Drawers extends StatelessWidget {
                 ),
                 title: Text('My Profile'),
                 onTap: () {
-                  // Update the state of the app.
-                  // ...
+                  Navigator.pop(context);
+                  Navigator.of(context).pushNamed(MyProfile.routeName);
                 },
               ),
               Divider(),
@@ -52,8 +51,9 @@ class Drawers extends StatelessWidget {
                 },
                 child: ListTile(
                   leading: Image.asset("assets/images/add_doctor.png", color: Colors.black, width: 25,),
-                  title: Text('Add Doctors'),
+                  title: Text('Add Doctor'),
                   onTap: () {
+                    Navigator.pop(context);
                     Navigator.of(context).pushNamed(AddDoctorScreen.routeName);
                   },
                 ),
@@ -67,37 +67,11 @@ class Drawers extends StatelessWidget {
                 ),
                 title: Text('Manage Doctors'),
                 onTap: () {
+                  Navigator.pop(context);
                   Navigator.of(context).pushNamed(ViewDoctor.routeName);
                 },
               ),
-              // ListTile(
-              //   leading: SvgPicture.asset(
-              //     "assets/svg/edit.svg",
-              //   ),
-              //   title: Text('Assign Articies'),
-              //   onTap: () {
-              //   },
-              // ),
               Divider(),
-
-     /*         GestureDetector(
-                onTap: () {
-                  Navigator.of(context)
-                      .pushReplacementNamed(LoginScreen.routeName);
-                },
-                child: ListTile(
-                  leading: Icon(
-                    Icons.sync_sharp,
-                    color: Colors.black,
-                  ),
-                  title: Text('Pull Data'),
-                  onTap: () {
-                    Navigator.of(context)
-                      .pop(Dashboard.routeName);
-                  },
-                ),
-              ),
-              Divider(),*/
               GestureDetector(
                 onTap: () {
                   Navigator.of(context)
@@ -110,6 +84,7 @@ class Drawers extends StatelessWidget {
                   ),
                   title: Text('Logout'),
                   onTap: () {
+                    Navigator.pop(context);
                     Navigator.of(context)
                         .pushReplacementNamed(LoginScreen.routeName);
                   },
