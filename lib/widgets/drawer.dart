@@ -4,6 +4,7 @@ import 'package:articleaapp/screens/my_profile.dart';
 import 'package:articleaapp/screens/view_doctor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Drawers extends StatelessWidget {
   @override
@@ -84,6 +85,7 @@ class Drawers extends StatelessWidget {
                   ),
                   title: Text('Logout'),
                   onTap: () {
+                    setBool("isLogged", false);
                     Navigator.pop(context);
                     Navigator.of(context)
                         .pushReplacementNamed(LoginScreen.routeName);
@@ -96,5 +98,12 @@ class Drawers extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void setBool(String key, bool value) async {
+    print("inside + value is : $value");
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool(key, value);
+
   }
 }

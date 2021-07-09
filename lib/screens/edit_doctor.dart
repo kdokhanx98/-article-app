@@ -1,3 +1,4 @@
+import 'package:articleaapp/Database/database_helper.dart';
 import 'package:articleaapp/models/city.dart';
 import 'package:articleaapp/models/doctor.dart';
 import 'package:articleaapp/provider/auth_provider.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'dashboard.dart';
 
@@ -19,12 +21,14 @@ class EditDoctorScreen extends StatefulWidget {
 }
 
 class _EditDoctorScreenState extends State<EditDoctorScreen> {
+  DatabaseHelper dbHelper = DatabaseHelper();
   GlobalKey<FormState> formKey = GlobalKey();
   final nameController = TextEditingController();
   final mobileController = TextEditingController();
   final emailController = TextEditingController();
   bool isInitialize = true;
   bool isDone = false;
+  var userId;
 
   List<City> searchCities = [];
   List<String> cities = [];
@@ -53,27 +57,36 @@ class _EditDoctorScreenState extends State<EditDoctorScreen> {
       }else{
         doctors = Provider.of<DoctorProvider>(context, listen: false).getDoctorList;
       }
-      final userId = Provider.of<AuthProvider>(context, listen: false).userId;
-      formKey.currentState.save();
-      Provider.of<DoctorProvider>(context, listen: false).updateDoctor(docName: nameController.text, docCity: cityId, docMobile: mobileController.text,
-          docEmail: emailController.text, tmId: userId, docId: doctors[index].docId).then((value)  {
-
-        Fluttertoast.showToast(
-            msg: "Updated Successfully",
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.green,
-            textColor: Colors.white,
-            fontSize: 16.0
-        ).whenComplete(() => Navigator.of(context).pushNamedAndRemoveUntil(Dashboard.routeName, (Route<dynamic> route) => false).then((value) => setState((){})));
-
+      getUserId().then((value) {
+        formKey.currentState.save();
+        Provider.of<DoctorProvider>(context, listen: false).updateDoctor(
+            docName: nameController.text,
+            docCity: cityId,
+            docMobile: mobileController.text,
+            docEmail: emailController.text,
+            tmId: userId,
+            docId: doctors[index].docId).then((value) {
+          Fluttertoast.showToast(
+              msg: "Updated Successfully",
+              toastLength: Toast.LENGTH_LONG,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.green,
+              textColor: Colors.white,
+              fontSize: 16.0
+          ).whenComplete(() =>
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                  Dashboard.routeName, (Route<dynamic> route) => false).then((
+                  value) => setState(() {})));
+        });
       });
     }
   }
 
   @override
   void didChangeDependencies() {
+    final authProvider = Provider.of<AuthProvider>(context);
+
     if (isInitialize) {
       isInitialize = false;
       print("inside if");
@@ -86,6 +99,25 @@ class _EditDoctorScreenState extends State<EditDoctorScreen> {
       }else{
         doctorsList = Provider.of<DoctorProvider>(context).getSearchedDoctorList;
       }
+
+      authProvider.isConnected().then((value) {
+        if(value){
+          final docProvider = Provider.of<DoctorProvider>(context);
+          docProvider.getCities().then((value) {
+            searchCities = docProvider.getCitiesList;
+            searchCities.map((e) {
+              cities.add(e.cityName);
+            }).toList();
+          });
+        }else{
+          cities.clear();
+          dbHelper.getCitiesList().then((value) {
+            value.map((e) {
+              cities.add(e.cityName);
+            }).toList();
+          });
+        }
+      });
 
       setState(() {
         nameController.text = doctorsList[index].docName;
@@ -151,7 +183,7 @@ class _EditDoctorScreenState extends State<EditDoctorScreen> {
                       ),
                     ),
                     SizedBox(
-                      width: 10,
+                      width: 5,
                     ),
                     Image.asset("assets/images/logo.png",
                         width: MediaQuery.of(context).size.width * 0.4),
@@ -333,6 +365,7 @@ class _EditDoctorScreenState extends State<EditDoctorScreen> {
                      saveForm(context);
                     },
                     textColor: Colors.white,
+                    color: Theme.of(context).accentColor,
                     child: Text(
                       'Update',
                       style: TextStyle(
@@ -357,5 +390,11 @@ class _EditDoctorScreenState extends State<EditDoctorScreen> {
     return RegExp(
             r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
         .hasMatch(email2);
+  }
+
+  Future<String> getUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    userId = prefs.getString(AuthProvider.tmIdKey);
+    return userId;
   }
 }

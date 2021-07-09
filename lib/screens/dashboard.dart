@@ -1,4 +1,9 @@
+import 'dart:io';
+
 import 'package:articleaapp/Database/database_helper.dart';
+import 'package:articleaapp/models/assign_article.dart';
+import 'package:articleaapp/models/doctor.dart';
+import 'package:articleaapp/provider/articles_provider.dart';
 import 'package:articleaapp/provider/auth_provider.dart';
 import 'package:articleaapp/provider/dashboard_provider.dart';
 import 'package:articleaapp/provider/doctor_provider.dart';
@@ -9,35 +14,35 @@ import 'package:articleaapp/widgets/drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Dashboard extends StatefulWidget {
   static const routeName = '/Dashboard';
+
 
   @override
   _DashboardState createState() => _DashboardState();
 }
 
 class _DashboardState extends State<Dashboard> {
-  var userId, docProvider;
+  DatabaseHelper dbHelper = DatabaseHelper();
   bool isInitialize = true;
-  String doctorsEnrolled = "0";
-  String articlesEnrolled = "0";
+  bool isFirst = true;
+  String doctorsEnrolled;
+  String articlesEnrolled;
+  String tmName = "";
+  String employeeCode = "";
+  String tmId = "";
+  int doctorsNo = 0;
+  int articlesNo = 0;
+  bool isCon = true;
 
   @override
   void didChangeDependencies() {
     if (isInitialize) {
-      DatabaseHelper dbHelper = DatabaseHelper();
-      docProvider = Provider.of<DoctorProvider>(context);
-      dbHelper.getDoctorsList().then((value) => print("length is ${value}"));
 
-      userId = Provider.of<AuthProvider>(context).userId;
-      var dashProvider = Provider.of<DashboardPorivder>(context);
-      dashProvider.getArticlesNo(userId);
-      dashProvider.getDoctorsNo(userId);
-      doctorsEnrolled = dashProvider.doctorsNo.toString();
-      articlesEnrolled = dashProvider.articlesNo.toString();
-
-
+        getUserData();
+        getDashData();
 
       isInitialize = false;
     }
@@ -48,11 +53,40 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   Widget build(BuildContext context) {
-    final userData = Provider.of<AuthProvider>(context).user;
 
-    var dashProvider = Provider.of<DashboardPorivder>(context);
-    doctorsEnrolled = dashProvider.doctorsNo.toString();
-    articlesEnrolled = dashProvider.articlesNo.toString();
+    if(isFirst){
+      List<Doctor> doctors = [];
+      List<AssignArticle> articlesToAssign = [];
+      isFirst = false;
+    isConnected().then((value) {
+        isCon = value;
+      if(value) {
+        // add offline doctors
+        dbHelper.getDoctorsOfflineList().then((value) {
+          doctors = value;
+          doctors.map((e) {
+            print("doctor sql list ${value.length} and doc name ${e.docName}");
+            Provider.of<DoctorProvider>(context, listen: false).addDoctor(docName: e.docName,
+                docCity: e.docCity,
+                docMobile: e.docMobile,
+                docEmail: e.docEmail,
+                tmId: tmId, cleanData: true);
+          }).toList();
+        });
+
+        // assign offline articles to doctors
+        dbHelper.getArticlesOfflineList().then((value) {
+          articlesToAssign = value;
+          articlesToAssign.map((e) {
+            print("object ${e.toString()}, ${e.articlesIds}");
+
+            print("article sql list ${value.length} and doc id ${e.docId} and articles are ${e.articlesIds}");
+            Provider.of<ArticleProvider>(context, listen: false).assignArticle(docId: e.docId, articleId: e.articlesIds ,cleanData: true);
+          }).toList();
+        });
+      }
+    });
+    }
 
 
     return Scaffold(
@@ -66,7 +100,9 @@ class _DashboardState extends State<Dashboard> {
                 size: 30.0,
               ),
               onPressed: () {
-                setState(() {});
+                setState(() {
+                  isConnected();
+                });
               },
             ),
           ],
@@ -85,27 +121,6 @@ class _DashboardState extends State<Dashboard> {
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.only(left: 12.0, right: 12.0),
-                // child: Row(
-                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //   children: <Widget>[
-                //     IconButton(
-                //       icon: Icon(
-                //         Icons.menu,
-                //         size: 30.0,
-                //       ),
-                //       onPressed: () => _scaffoldKey.currentState.openDrawer(),
-                //     ),
-                //     Text("Article Alert System",
-                //         style: TextStyle(fontSize: 20, color: Colors.black , fontWeight: )),
-                //     IconButton(
-                //       icon: Icon(
-                //         Icons.sync_sharp,
-                //         size: 30.0,
-                //       ),
-                //       onPressed: () {},
-                //     ),
-                //   ],
-                // ),
               ),
               Container(
                 height: 40,
@@ -114,8 +129,7 @@ class _DashboardState extends State<Dashboard> {
                 child: Padding(
                   padding: const EdgeInsets.only(left: 16.0, top: 8.0),
                   child: Text(
-                    userData != null
-                        ? "Welcome ${userData.tmName} - ${userData.tmEmployeeCode}"
+                    tmId != "" ? "Welcome $tmName - $employeeCode"
                         : "No User data",
                     style: TextStyle(
                         fontSize: 16,
@@ -173,11 +187,15 @@ class _DashboardState extends State<Dashboard> {
                             SizedBox(
                               height: 10,
                             ),
-                            Text(doctorsEnrolled == null ? "0" : doctorsEnrolled,
+                            isCon ? Text(doctorsEnrolled == null? "0" : doctorsEnrolled,
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold))
+                            : Text(doctorsNo == 0 ? "0" : doctorsNo.toString(), style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold)),
                           ],
                         ),
                         SizedBox(
@@ -202,11 +220,16 @@ class _DashboardState extends State<Dashboard> {
                             SizedBox(
                               height: 10,
                             ),
-                            Text(articlesEnrolled == null ? "0" : articlesEnrolled,
+                            isCon ? Text(articlesEnrolled == null ? "0" : articlesEnrolled,
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold))
+                            : Text(articlesNo == 0 ? "0" : articlesNo.toString(), style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold)),
+
                           ],
                         )
                       ],
@@ -233,13 +256,6 @@ class _DashboardState extends State<Dashboard> {
                       child: card("Manage Doctors",
                           "assets/svg/list_of_doctor.svg", context),
                     ),
-                    // GestureDetector(
-                    //   onTap: () {
-                    //     Navigator.of(context).pushNamed(ViewArticle.routeName);
-                    //   },
-                    //   child: card("View Article",
-                    //       "assets/svg/content_writing.svg", context),
-                    // ),
                   ],
                 )),
               ),
@@ -297,4 +313,62 @@ class _DashboardState extends State<Dashboard> {
       ),
     );
   }
+
+  Future<bool> isConnected() async {
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        print('connected');
+        return true;
+
+      }
+      return false;
+    } on SocketException catch (_) {
+      print('not connected');
+      return false;
+    }
+  }
+
+  void getUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      tmName = prefs.getString(AuthProvider.tmNameKEY);
+      employeeCode = prefs.getString(AuthProvider.tmEmployeeKey);
+      tmId = prefs.getString(AuthProvider.tmIdKey);
+
+
+    });
+
+    var dashProvider = Provider.of<DashboardPorivder>(context, listen: false);
+
+    dashProvider.getArticlesNo(tmId).then((value) {
+      setState(() {
+        articlesEnrolled = dashProvider.articlesNo.toString();
+      });
+
+    });
+    dashProvider.getDoctorsNo(tmId).then((value) {
+      setState(() {
+      doctorsEnrolled = dashProvider.doctorsNo.toString();
+      });
+    });
+
+
+    print("user data : $tmName, $employeeCode, $tmId");
+  }
+
+  void getDashData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      doctorsNo = prefs.getInt(DashboardPorivder.doctorsNoKey);
+      articlesNo = prefs.getInt(DashboardPorivder.articlesNoKey);
+    });
+
+
+    print("dash data : $doctorsNo, $articlesNo");
+  }
+
+
 }
+
+

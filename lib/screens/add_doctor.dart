@@ -1,4 +1,5 @@
 
+import 'package:articleaapp/Database/database_helper.dart';
 import 'package:articleaapp/models/city.dart';
 import 'package:articleaapp/provider/auth_provider.dart';
 import 'package:articleaapp/provider/dashboard_provider.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 
@@ -21,6 +23,7 @@ class AddDoctorScreen extends StatefulWidget {
 }
 
 class _AddDoctorScreenState extends State<AddDoctorScreen> {
+  DatabaseHelper dbHelper = DatabaseHelper();
   List<City> searchCities = [];
   List<String> cities = [];
   GlobalKey<FormState> formKey = GlobalKey();
@@ -32,12 +35,16 @@ class _AddDoctorScreenState extends State<AddDoctorScreen> {
   bool isDone = false;
   String city;
   String cityId;
+  var userId;
+
 
   @override
   void didChangeDependencies() {
+    var authProvider = Provider.of<AuthProvider>(context);
+    final docProvider = Provider.of<DoctorProvider>(context);
     if (isInitialized) {
       isInitialized = false;
-      final docProvider = Provider.of<DoctorProvider>(context);
+
       if(docProvider.getCitiesList.length > 0){
         searchCities = docProvider.getCitiesList;
         if(cities.length == 0) {
@@ -47,12 +54,25 @@ class _AddDoctorScreenState extends State<AddDoctorScreen> {
         }
         return;
       }
-        docProvider.getCities().then((value) {
-          searchCities = docProvider.getCitiesList;
-          searchCities.map((e) {
-            cities.add(e.cityName);
-          }).toList();
-        });
+
+      authProvider.isConnected().then((value) {
+        if(value){
+          docProvider.getCities().then((value) {
+            searchCities = docProvider.getCitiesList;
+            searchCities.map((e) {
+              cities.add(e.cityName);
+            }).toList();
+          });
+        }else{
+          cities.clear();
+          dbHelper.getCitiesList().then((value) {
+            value.map((e) {
+              cities.add(e.cityName);
+            }).toList();
+          });
+        }
+      });
+
 
     }
 
@@ -77,27 +97,31 @@ class _AddDoctorScreenState extends State<AddDoctorScreen> {
       setState(() {
         isDone = !isDone;
       });
-      final userId = Provider.of<AuthProvider>(context, listen: false).userId;
-      formKey.currentState.save();
+
+      getUserId().then((value)  {
+          formKey.currentState.save();
       Provider.of<DoctorProvider>(context, listen: false).addDoctor(docName: nameController.text, docCity: cityId,
           docMobile: mobileController.text, docEmail: emailController.text, tmId: userId).then((value)  {
 
-      Fluttertoast.showToast(
-      msg: "Added Successfully",
-      toastLength: Toast.LENGTH_LONG,
-      gravity: ToastGravity.BOTTOM,
-      timeInSecForIosWeb: 1,
-      backgroundColor: Colors.green,
-      textColor: Colors.white,
-      fontSize: 16.0
-      ).whenComplete(() {
-        var dashProvider = Provider.of<DashboardPorivder>(context, listen: false);
-        dashProvider.getArticlesNo(userId);
-        dashProvider.getDoctorsNo(userId).whenComplete(() => Navigator.of(context).pop());
+        Fluttertoast.showToast(
+            msg: "Added Successfully",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            fontSize: 16.0
+        ).whenComplete(() {
+          var dashProvider = Provider.of<DashboardPorivder>(context, listen: false);
+          dashProvider.getArticlesNo(userId);
+          dashProvider.getDoctorsNo(userId).whenComplete(() => Navigator.of(context).pop());
+
+        });
 
       });
-
       });
+
+
     }
   }
 
@@ -337,5 +361,11 @@ class _AddDoctorScreenState extends State<AddDoctorScreen> {
     return RegExp(
         r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
         .hasMatch(email2);
+  }
+
+  Future<String> getUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    userId = prefs.getString(AuthProvider.tmIdKey);
+    return userId;
   }
 }

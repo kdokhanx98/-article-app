@@ -7,7 +7,7 @@ import 'package:articleaapp/styling.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'Database/database_helper.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/add_doctor.dart';
 import 'screens/dashboard.dart';
 import 'screens/edit_doctor.dart';
@@ -25,10 +25,33 @@ void main() {
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget{
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  var route = "";
+
+  var widget;
+
+  var isInitialized = true;
 
   @override
   Widget build(BuildContext context) {
+    if(isInitialized){
+      isInitialized = false;
+      getRoute().then((value){
+        setState(() {
+          route = value;
+          print("route : $route");
+        });
+      });
+
+
+
+    }
+
 
     return MultiProvider(providers: [ListenableProvider<AuthProvider>(create: (_) => AuthProvider()), ListenableProvider<ArticleProvider>(create: (_) => ArticleProvider()), ListenableProvider<DashboardPorivder>(create: (_) => DashboardPorivder()), ListenableProvider<DoctorProvider>(create: (_) => DoctorProvider()), ],
         child: MaterialApp(
@@ -67,9 +90,8 @@ class MyApp extends StatelessWidget {
           overline: TextStyle(fontFamily: 'NotoSans'),
         ),
       ),
-      home: LoginScreen(),
-      // navigatorObservers: [TransitionRouteObserver()],
-      initialRoute: LoginScreen.routeName,
+      home: route == "/Dashboard" ? Dashboard() : LoginScreen(),
+        initialRoute: route,
       routes: {
         LoginScreen.routeName: (context) => LoginScreen(),
         Dashboard.routeName: (context) => Dashboard(),
@@ -83,4 +105,19 @@ class MyApp extends StatelessWidget {
     )
     );
   }
+
+  Future<String> getRoute() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isLogged = prefs.getBool("isLogged");
+    if(isLogged == null){
+      isLogged = false;
+    }
+    print("inside route + value is : $isLogged");
+    route = isLogged ? Dashboard.routeName : LoginScreen.routeName;
+    return route;
+  }
 }
+
+
+
+

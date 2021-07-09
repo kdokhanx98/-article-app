@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:articleaapp/models/doctor.dart';
 import 'package:articleaapp/provider/auth_provider.dart';
 import 'package:articleaapp/provider/doctor_provider.dart';
 import 'package:articleaapp/widgets/doctor_item.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ViewDoctor extends StatefulWidget {
   static const routeName = '/ViewDoctor';
@@ -20,21 +23,19 @@ class _ViewDoctorState extends State<ViewDoctor> {
   List<Doctor> searchedList = [];
   var provider;
   var userId;
+  var isCon = false;
 
   @override
   void didChangeDependencies() {
     provider = Provider.of<DoctorProvider>(context);
     if (isInitialize) {
       isInitialize = false;
-      userId = Provider.of<AuthProvider>(context).userId;
-      Provider.of<DoctorProvider>(context)
-          .getDoctors(userId)
-          .then((value) {
-            doctorsList = provider.getDoctorList;
-            setState(() {
-              showProgressDialog = false;
-            });
-          });
+
+      setState(() {
+        isConnected();
+        getUserId();
+      });
+
 
     }
     super.didChangeDependencies();
@@ -72,10 +73,13 @@ class _ViewDoctorState extends State<ViewDoctor> {
                   onChanged: (String keyword) {
                     Provider.of<DoctorProvider>(context, listen: false)
                         .getSearchList(keyword, userId)
-                        .then((value) =>
-                    searchedList = Provider
-                        .of<DoctorProvider>(context, listen: false)
-                        .getSearchedDoctorList);
+                        .whenComplete(() {
+                      searchedList = Provider
+                          .of<DoctorProvider>(context, listen: false)
+                          .getSearchedDoctorList;
+
+                    });
+
                   },
                 ),
               ),
@@ -135,7 +139,7 @@ class _ViewDoctorState extends State<ViewDoctor> {
                     ),
                   ),
                   SizedBox(
-                    width: 10,
+                    width: 5,
                   ),
                   Image.asset("assets/images/logo.png",
                       width: MediaQuery
@@ -204,5 +208,41 @@ class _ViewDoctorState extends State<ViewDoctor> {
         ),
       ),
     );
+  }
+
+  void isConnected() async {
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        print('connected');
+        setState(() {
+          isCon = true;
+        });
+
+      }
+      setState(() {
+        isCon = false;
+      });
+    } on SocketException catch (_) {
+      print('not connected');
+      setState(() {
+        isCon = false;
+      });
+    }
+  }
+
+  void getUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      doctorsList.clear();
+      userId = prefs.getString(AuthProvider.tmIdKey);
+      print("userid: $userId");
+      Provider.of<DoctorProvider>(context, listen: false)
+          .getDoctors(userId)
+          .whenComplete(() {
+        doctorsList = provider.getDoctorList;
+        showProgressDialog = false;
+      });
+    });
   }
 }

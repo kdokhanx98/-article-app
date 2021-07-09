@@ -1,7 +1,9 @@
 import 'dart:io';
 
 import 'package:articleaapp/models/articles.dart';
+import 'package:articleaapp/models/assign_article.dart';
 import 'package:articleaapp/models/city.dart';
+import 'package:articleaapp/models/dashboard.dart';
 import 'package:articleaapp/models/doctor.dart';
 import 'package:articleaapp/models/user.dart';
 import 'package:path_provider/path_provider.dart';
@@ -14,6 +16,9 @@ class DatabaseHelper {
   String articleTableName = "articleTable";
   String cityTableName = "cityTable";
   String userTableName = "userTable";
+  String dashboardTableName = "dashTable";
+  String docOfflineTableName = "docOfflineTable";
+  String articleOfflineTableName = "articleOfflineTable";
 
   DatabaseHelper._createInstance();
 
@@ -47,13 +52,23 @@ class DatabaseHelper {
         "CREATE TABLE $articleTableName(articleId TEXT, articleType TEXT, articleTitle TEXT, journalTitle TEXT, articleFileUrl TEXT, creationDate TEXT, modifiedDate TEXT, isDone INTEGER)");
 
     await dbCreate.execute(
+        "CREATE TABLE $articleOfflineTableName(docId TEXT, articlesIds TEXT)");
+
+    await dbCreate.execute(
         "CREATE TABLE $cityTableName(cityName TEXT, cityId TEXT)");
 
     await dbCreate.execute(
         "CREATE TABLE $userTableName(tmId TEXT, tmName TEXT, tmEmployeeCode TEXT, tmPw TEXT, tmMobile TEXT, tmEmail TEXT)");
+
+    await dbCreate.execute(
+        "CREATE TABLE $dashboardTableName(doctorsNo INTEGER, articlesNo INTEGER)");
+
+    await dbCreate.execute(
+        "CREATE TABLE $docOfflineTableName(docId TEXT, docName TEXT, docMobile TEXT, tmId TEXT, docCity TEXT, docEmail TEXT, isDone INTEGER)");
+
   }
 
-  void deleteTable(String tableName) async {
+  Future<void> deleteTable(String tableName) async {
     await db.execute(
       "DELETE FROM $tableName"
     );
@@ -68,6 +83,12 @@ class DatabaseHelper {
 
   Future<int> insertDoctor(Doctor doctor) async {
     Database dbInsert = await this.database;
+    var result = await dbInsert.insert(docOfflineTableName, doctor.toMap());
+    return result;
+  }
+
+  Future<int> addDoctor(Doctor doctor) async {
+    Database dbInsert = await this.database;
     var result = await dbInsert.insert(docTableName, doctor.toMap());
     return result;
   }
@@ -75,10 +96,17 @@ class DatabaseHelper {
   Future<int> insertUser(User user) async {
     Database dbInsert = await this.database;
     var result = await dbInsert.insert(userTableName, user.toMap());
+    print("result is : $result");
     return result;
   }
 
-  Future<int> insertArticle(Article article) async {
+  Future<int> insertArticle(AssignArticle article) async {
+    Database dbInsert = await this.database;
+    var result = await dbInsert.insert(articleOfflineTableName, article.toMap());
+    return result;
+  }
+
+  Future<int> addArticle(Article article) async {
     Database dbInsert = await this.database;
     var result = await dbInsert.insert(articleTableName, article.toMap());
     return result;
@@ -88,6 +116,25 @@ class DatabaseHelper {
     Database dbInsert = await this.database;
     var result = await dbInsert.insert(cityTableName, city.toMap());
     return result;
+  }
+
+  Future<int> insertDashData(DashboardData dashboardData) async {
+    Database dbInsert = await this.database;
+    var result = await dbInsert.insert(dashboardTableName, dashboardData.toMap());
+    return result;
+  }
+
+  Future<List<DashboardData>> getDashDataList() async {
+    var mapListData = await getTable(dashboardTableName);
+    int count = mapListData.length;
+
+    List<DashboardData> docGets = [];
+
+    for (int i = 0; i <= count - 1; i++) {
+      docGets.add(DashboardData.fromMapObject(mapListData[i]));
+    }
+    print('data size : ${docGets.length}');
+    return docGets;
   }
 
   Future<List<Doctor>> getDoctorsList() async {
@@ -103,6 +150,20 @@ class DatabaseHelper {
     return docGets;
   }
 
+  Future<List<Doctor>> getDoctorsOfflineList() async {
+    var mapListData = await getTable(docOfflineTableName);
+    int count = mapListData.length;
+
+    List<Doctor> docGets = [];
+
+    for (int i = 0; i <= count - 1; i++) {
+      docGets.add(Doctor.fromMapObject(mapListData[i]));
+    }
+    print('data size : ${docGets.length}');
+    return docGets;
+  }
+
+
   Future<List<Article>> getArticlesList() async {
     var mapListData = await getTable(articleTableName);
     int count = mapListData.length;
@@ -111,6 +172,19 @@ class DatabaseHelper {
 
     for (int i = 0; i <= count - 1; i++) {
       articleGets.add(Article.fromMapObject(mapListData[i]));
+    }
+    print('data size : ${articleGets.length}');
+    return articleGets;
+  }
+
+  Future<List<AssignArticle>> getArticlesOfflineList() async {
+    var mapListData = await getTable(articleOfflineTableName);
+    int count = mapListData.length;
+
+    List<AssignArticle> articleGets = [];
+
+    for (int i = 0; i <= count - 1; i++) {
+      articleGets.add(AssignArticle.fromMapObject(mapListData[i]));
     }
     print('data size : ${articleGets.length}');
     return articleGets;
@@ -144,8 +218,18 @@ class DatabaseHelper {
 
 
   Future<List<Doctor>> getDoctorsSearchedList(String keyWord) async {
+  var data;
 
-    var data = getDoctorsList().then((value) => value.where((element) => element.docName.contains(keyWord) || element.docEmail.contains(keyWord)).toList());
+    await getDoctorsList().then((value) {
+      data = value.where((element) {
+        print("element: ${element.docName}");
+        if(element.docName.contains(keyWord) || element.docEmail.contains(keyWord)) {
+          print("element contained: ${element.docName}");
+          return true;
+        }
+        return false;
+      }).toList();
+    });
     return data;
 
   }
