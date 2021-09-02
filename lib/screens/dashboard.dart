@@ -9,7 +9,7 @@ import 'package:articleaapp/provider/dashboard_provider.dart';
 import 'package:articleaapp/provider/doctor_provider.dart';
 import 'package:articleaapp/screens/add_doctor.dart';
 import 'package:articleaapp/screens/view_doctor.dart';
-import 'package:articleaapp/styling.dart';
+import 'package:articleaapp/utils/styling.dart';
 import 'package:articleaapp/widgets/drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -55,37 +55,7 @@ class _DashboardState extends State<Dashboard> {
   Widget build(BuildContext context) {
 
     if(isFirst){
-      List<Doctor> doctors = [];
-      List<AssignArticle> articlesToAssign = [];
-      isFirst = false;
-    isConnected().then((value) {
-        isCon = value;
-      if(value) {
-        // add offline doctors
-        dbHelper.getDoctorsOfflineList().then((value) {
-          doctors = value;
-          doctors.map((e) {
-            print("doctor sql list ${value.length} and doc name ${e.docName}");
-            Provider.of<DoctorProvider>(context, listen: false).addDoctor(docName: e.docName,
-                docCity: e.docCity,
-                docMobile: e.docMobile,
-                docEmail: e.docEmail,
-                tmId: tmId, cleanData: true);
-          }).toList();
-        });
-
-        // assign offline articles to doctors
-        dbHelper.getArticlesOfflineList().then((value) {
-          articlesToAssign = value;
-          articlesToAssign.map((e) {
-            print("object ${e.toString()}, ${e.articlesIds}");
-
-            print("article sql list ${value.length} and doc id ${e.docId} and articles are ${e.articlesIds}");
-            Provider.of<ArticleProvider>(context, listen: false).assignArticle(docId: e.docId, articleId: e.articlesIds ,cleanData: true);
-          }).toList();
-        });
-      }
-    });
+      syncOfflineData();
     }
 
 
@@ -101,7 +71,7 @@ class _DashboardState extends State<Dashboard> {
               ),
               onPressed: () {
                 setState(() {
-                  isConnected();
+                    syncOfflineData();
                 });
               },
             ),
@@ -366,6 +336,40 @@ class _DashboardState extends State<Dashboard> {
 
 
     print("dash data : $doctorsNo, $articlesNo");
+  }
+
+  void syncOfflineData(){
+    List<Doctor> doctors = [];
+    List<AssignArticle> articlesToAssign = [];
+    isFirst = false;
+    isConnected().then((value) {
+      isCon = value;
+      if(value) {
+        // add offline doctors
+        dbHelper.getDoctorsOfflineList().then((value) {
+          doctors = value;
+          doctors.map((e) {
+            print("doctor sql list ${value.length} and doc name ${e.docName}");
+            Provider.of<DoctorProvider>(context, listen: false).addDoctor(docName: e.docName,
+                docCity: e.docCity,
+                docMobile: e.docMobile,
+                docEmail: e.docEmail,
+                tmId: tmId, cleanData: true);
+          }).toList();
+        });
+
+        // assign offline articles to doctors
+        dbHelper.getArticlesOfflineList().then((value) {
+          articlesToAssign = value;
+          articlesToAssign.map((e) {
+            print("object ${e.toString()}, ${e.articlesIds}");
+
+            print("article sql list ${value.length} and doc id ${e.docId} and articles are ${e.articlesIds}");
+            Provider.of<ArticleProvider>(context, listen: false).assignArticle(docId: e.docId, articleId: e.articlesIds ,cleanData: true);
+          }).toList();
+        });
+      }
+    });
   }
 
 

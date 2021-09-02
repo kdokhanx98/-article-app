@@ -31,36 +31,33 @@ class _ViewArticleState extends State<ViewArticle> {
 
   @override
   void didChangeDependencies() {
-
     if (isInitialized) {
       isInitialized = false;
 
       setState(() {
         docId = ModalRoute.of(context).settings.arguments as String;
-        var articleProvider = Provider.of<ArticleProvider>(context, listen: false);
-        if(articleProvider.getArticlesList.length > 0){
+        var articleProvider =
+        Provider.of<ArticleProvider>(context, listen: false);
+        if (articleProvider.getArticlesList.length > 0) {
           print("inside");
           articles = articleProvider.getArticlesList;
           articles.map((e) {
-            if(e.isChecked){
+            if (e.isChecked) {
               e.isChecked = false;
             }
-          }
-          ).toList();
+          }).toList();
           return;
         }
 
         getUserData();
       });
-
-
-
     }
     super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -94,30 +91,26 @@ class _ViewArticleState extends State<ViewArticle> {
               ],
             ),
           ), // logos
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              alignment: Alignment.topLeft,
+              child: Text(
+                "Articles",
+                style: TextStyle(fontSize: 25),
+              ),
+            ),
+          ),
+          SizedBox(
+            height: 10,
+          ),
           Expanded(
             child: ListView(
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    alignment: Alignment.topLeft,
-                    child: Text(
-                      "Articles",
-                      style: TextStyle(fontSize: 25),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-              ],
-            ),
-          ),
-          articles.length > 0
-              ? Container(
-                height: MediaQuery.of(context).size.height,
-                child: Padding(
-                    padding: const EdgeInsets.only(bottom: 80),
+                articles.length > 0
+                    ? Container(
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 40),
                     child: ListView.builder(
                       physics: BouncingScrollPhysics(),
                       shrinkWrap: true,
@@ -125,7 +118,7 @@ class _ViewArticleState extends State<ViewArticle> {
                         onTap: () {
                           setState(() {
                             articles[index].isChecked =
-                                !articles[index].isChecked;
+                            !articles[index].isChecked;
                             if (articles[index].isChecked) {
                               counter += 1;
                             } else {
@@ -163,22 +156,27 @@ class _ViewArticleState extends State<ViewArticle> {
                       itemCount: articles.length,
                     ),
                   ),
-              )
-              : Container(
-                  height: MediaQuery.of(context).size.height * 0.7,
-                  child: Center(
-                    child: CircularProgressIndicator(),
-                  )),
+                )
+                    : Container(
+                    height: MediaQuery.of(context).size.height * 0.7,
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    )),
+              ],
+            ),
+          ),
         ],
       ),
-      floatingActionButton:  counter > 0 ? FloatingActionButton.extended(
-        onPressed: !isDone ?  () {
+      floatingActionButton: counter > 0
+          ? FloatingActionButton.extended(
+        onPressed: !isDone
+            ? () {
           checkedArticlesIds.clear();
           setState(() {
             isDone = !isDone;
           });
-       articles.where((element)  {
-            if(element.isChecked){
+          articles.where((element) {
+            if (element.isChecked) {
               checkedArticlesIds.add(element.articleId);
               return true;
             }
@@ -186,39 +184,48 @@ class _ViewArticleState extends State<ViewArticle> {
           }).toList();
           String checkedArticles = checkedArticlesIds.join(',');
           Provider.of<ArticleProvider>(context, listen: false)
-              .assignArticle(docId: docId, articleId: checkedArticles)
+              .assignArticle(
+              docId: docId, articleId: checkedArticles)
               .then((value) {
             Fluttertoast.showToast(
-                    msg: "Assigned Successfully",
-                    toastLength: Toast.LENGTH_LONG,
-                    gravity: ToastGravity.BOTTOM,
-                    timeInSecForIosWeb: 1,
-                    backgroundColor: Colors.green,
-                    textColor: Colors.white,
-                    fontSize: 16.0)
+                msg: "Assigned Successfully",
+                toastLength: Toast.LENGTH_LONG,
+                gravity: ToastGravity.BOTTOM,
+                timeInSecForIosWeb: 1,
+                backgroundColor: Colors.green,
+                textColor: Colors.white,
+                fontSize: 16.0)
                 .whenComplete(() {
-              Navigator.of(context).pushReplacementNamed(Dashboard.routeName);
+              Navigator.of(context)
+                  .pushReplacementNamed(Dashboard.routeName);
             });
           });
-        } : null,
+        }
+            : null,
         label: Row(
-          children: !isDone ? [
-            Text(
-              'Assign Article  ',
-              style: TextStyle(color: Colors.white, fontSize: 17),
-            ),
-            Text(
-              '$counter',
-              style: TextStyle(color: Colors.white, fontSize: 20),
-            ),
-          ] : [
-            Center(
-            child: CircularProgressIndicator(backgroundColor: Colors.white,),
-      )],
+          children: !isDone
+          ? [
+          Text(
+            'Assign Article  ',
+            style: TextStyle(color: Colors.white, fontSize: 17),
+          ),
+          Text(
+            '$counter',
+            style: TextStyle(color: Colors.white, fontSize: 20),
+          ),
+          ]
+              : [
+          Center(
+          child: CircularProgressIndicator(
+          backgroundColor: Colors.white,
         ),
-        backgroundColor: Colors.pink,
-      ) : null,
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      )
+      ],
+    ),
+    backgroundColor: Colors.pink,
+    )
+        : null,
+    floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
@@ -226,14 +233,12 @@ class _ViewArticleState extends State<ViewArticle> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var articleProvider = Provider.of<ArticleProvider>(context, listen: false);
 
-      username = prefs.get(AuthProvider.tmEmployeeKey);
-      password = prefs.get(AuthProvider.tmEmployeePass);
-      articleProvider.getArticles(username, password).then((value) {
-        setState(() {
-          articles = articleProvider.getArticlesList;
-        });
+    username = prefs.get(AuthProvider.tmEmployeeKey);
+    password = prefs.get(AuthProvider.tmEmployeePass);
+    articleProvider.getArticles(username, password).then((value) {
+      setState(() {
+        articles = articleProvider.getArticlesList;
       });
-
-
+    });
   }
 }

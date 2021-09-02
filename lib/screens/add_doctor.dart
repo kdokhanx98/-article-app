@@ -268,7 +268,7 @@ class _AddDoctorScreenState extends State<AddDoctorScreen> {
                                   );
                                 }).toList(),
                             hint: cities.length > 0 ? Text(
-                              "City -  No Selected",
+                              "HQ/City -  No Selected",
                               style: TextStyle(
                                 fontSize: 18,
                                 color: Colors.grey,

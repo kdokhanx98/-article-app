@@ -1,11 +1,11 @@
 import 'package:articleaapp/models/user.dart';
 import 'package:articleaapp/provider/auth_provider.dart';
+import 'package:articleaapp/utils/users.dart';
 import 'package:flutter/scheduler.dart' show timeDilation;
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
 import 'package:provider/provider.dart';
-import '../custom_route.dart';
-import '../users.dart';
+import '../utils/custom_route.dart';
 import 'dashboard.dart';
 
 class LoginScreen extends StatelessWidget {

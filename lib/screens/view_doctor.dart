@@ -116,49 +116,52 @@ class _ViewDoctorState extends State<ViewDoctor> {
               : Container(),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            SizedBox(
-              height: 10,
-            ),
-            Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 13),
-                    child: Image.asset(
-                      "assets/images/bran1.png",
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: 10,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 13),
+                  child: Image.asset(
+                    "assets/images/bran1.png",
+                    width: MediaQuery
+                        .of(context)
+                        .size
+                        .width * 0.24,
+                  ),
+                ),
+                SizedBox(
+                  width: 5,
+                ),
+                Image.asset("assets/images/logo.png",
+                    width: MediaQuery
+                        .of(context)
+                        .size
+                        .width * 0.4),
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: Image.asset("assets/images/bran2.png",
                       width: MediaQuery
                           .of(context)
                           .size
-                          .width * 0.24,
-                    ),
-                  ),
-                  SizedBox(
-                    width: 5,
-                  ),
-                  Image.asset("assets/images/logo.png",
-                      width: MediaQuery
-                          .of(context)
-                          .size
-                          .width * 0.4),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 12),
-                    child: Image.asset("assets/images/bran2.png",
-                        width: MediaQuery
-                            .of(context)
-                            .size
-                            .width * 0.24),
-                  )
-                ],
-              ),
+                          .width * 0.24),
+                )
+              ],
             ),
-            !isSearchClicked ? !showProgressDialog ? Padding(
-              padding: const EdgeInsets.only(bottom: 4),
+          ), //logos
+    Expanded(
+    child: ListView(
+    children: [
+          !isSearchClicked ? !showProgressDialog ? Container(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 40),
               child: ListView.builder(
                 physics: BouncingScrollPhysics(),
                 shrinkWrap: true,
@@ -175,37 +178,39 @@ class _ViewDoctorState extends State<ViewDoctor> {
                     ),
                 itemCount: doctorsList.length,
               ),
-            ) : Container(height: MediaQuery
-                .of(context)
-                .size
-                .height * 0.7,
-                child: Center(child: CircularProgressIndicator(),)) :
-            searchedList.length > 0 ? Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: ListView.builder(
-                physics: BouncingScrollPhysics(),
-                shrinkWrap: true,
-                itemBuilder: (context, index) =>
-                    DoctorItem(
-                      number: (index + 1).toString(),
-                      drName: searchedList[index].docName,
-                      drEmail: searchedList[index].docEmail,
-                      drNumber: searchedList[index].docMobile,
-                      docId: searchedList[index].docId,
-                      docCity: searchedList[index].docCity,
-                      isSearch: true,
-                      index: index,
-                    ),
-                itemCount: searchedList.length,
-              ),
-            ) : Container(height: MediaQuery
-                .of(context)
-                .size
-                .height * 0.2,
-                child: Center(child: CircularProgressIndicator(),))
-            ,
+            ),
+          ) : Container(height: MediaQuery
+              .of(context)
+              .size
+              .height * 0.7,
+              child: Center(child: CircularProgressIndicator(),)) :
+          searchedList.length > 0 ? Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: ListView.builder(
+              physics: BouncingScrollPhysics(),
+              shrinkWrap: true,
+              itemBuilder: (context, index) =>
+                  DoctorItem(
+                    number: (index + 1).toString(),
+                    drName: searchedList[index].docName,
+                    drEmail: searchedList[index].docEmail,
+                    drNumber: searchedList[index].docMobile,
+                    docId: searchedList[index].docId,
+                    docCity: searchedList[index].docCity,
+                    isSearch: true,
+                    index: index,
+                  ),
+              itemCount: searchedList.length,
+            ),
+          ) : Container(height: MediaQuery
+              .of(context)
+              .size
+              .height * 0.2,
+              child: Center(child: CircularProgressIndicator(),)),
           ],
-        ),
+          ),
+          ),
+        ],
       ),
     );
   }

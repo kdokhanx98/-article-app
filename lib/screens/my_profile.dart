@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:articleaapp/provider/auth_provider.dart';
-import 'package:articleaapp/styling.dart';
+import 'package:articleaapp/utils/styling.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';

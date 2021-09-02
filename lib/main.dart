@@ -3,7 +3,7 @@ import 'package:articleaapp/provider/auth_provider.dart';
 import 'package:articleaapp/provider/dashboard_provider.dart';
 import 'package:articleaapp/provider/doctor_provider.dart';
 import 'package:articleaapp/screens/my_profile.dart';
-import 'package:articleaapp/styling.dart';
+import 'package:articleaapp/utils/styling.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
